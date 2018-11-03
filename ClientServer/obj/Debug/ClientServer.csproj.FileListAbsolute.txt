@@ -1,0 +1,10 @@
+E:\KRSBI\Project\ClientServer\ClientServer\bin\Debug\ClientServer.exe.config
+E:\KRSBI\Project\ClientServer\ClientServer\bin\Debug\ClientServer.exe
+E:\KRSBI\Project\ClientServer\ClientServer\bin\Debug\ClientServer.pdb
+E:\KRSBI\Project\ClientServer\ClientServer\obj\Debug\ClientServer.csprojAssemblyReference.cache
+E:\KRSBI\Project\ClientServer\ClientServer\obj\Debug\ClientServer.Server.resources
+E:\KRSBI\Project\ClientServer\ClientServer\obj\Debug\ClientServer.Properties.Resources.resources
+E:\KRSBI\Project\ClientServer\ClientServer\obj\Debug\ClientServer.csproj.GenerateResource.cache
+E:\KRSBI\Project\ClientServer\ClientServer\obj\Debug\ClientServer.csproj.CoreCompileInputs.cache
+E:\KRSBI\Project\ClientServer\ClientServer\obj\Debug\ClientServer.exe
+E:\KRSBI\Project\ClientServer\ClientServer\obj\Debug\ClientServer.pdb

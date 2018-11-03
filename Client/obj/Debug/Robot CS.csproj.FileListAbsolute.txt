@@ -1,0 +1,11 @@
+E:\KRSBI\Project\ClientServer\Client\bin\Debug\Client.exe.config
+E:\KRSBI\Project\ClientServer\Client\bin\Debug\Client.exe
+E:\KRSBI\Project\ClientServer\Client\bin\Debug\Client.pdb
+E:\KRSBI\Project\ClientServer\Client\obj\Debug\Client.RobotCS.resources
+E:\KRSBI\Project\ClientServer\Client\obj\Debug\Client.Properties.Resources.resources
+E:\KRSBI\Project\ClientServer\Client\obj\Debug\Robot CS.csproj.GenerateResource.cache
+E:\KRSBI\Project\ClientServer\Client\obj\Debug\Robot CS.csproj.CoreCompileInputs.cache
+E:\KRSBI\Project\ClientServer\Client\obj\Debug\Client.exe
+E:\KRSBI\Project\ClientServer\Client\obj\Debug\Client.pdb
+E:\KRSBI\Project\ClientServer\Client\obj\Debug\Robot CS.csprojAssemblyReference.cache
+E:\KRSBI\Project\ClientServer\Client\obj\Debug\Client.UseAs.resources
