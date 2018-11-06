@@ -268,6 +268,7 @@
             this.tbxMessage.Size = new System.Drawing.Size(450, 50);
             this.tbxMessage.TabIndex = 11;
             this.tbxMessage.Text = "";
+            this.tbxMessage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbxMessage_KeyDown);
             // 
             // RobotCS
             // 
