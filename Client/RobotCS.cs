@@ -35,9 +35,9 @@ namespace Client
             this.Text = gbxRobot.Text = useAs;
             myIP = GetIPAddress();
             tbxIPRobot.Text /*= "169.254.162.201"*/ = GetIPAddress();
-            tbxPortRobot.Text = "28097";
+            tbxPortRobot.Text = "8686";
             tbxIPBS.Text /*= GetIPAddress()*/ = "192.168.165.10";
-            tbxPortBS.Text = "28097";
+            tbxPortBS.Text = "8686";
         }
 
         private void btnOpenServer_Click(object sender, EventArgs e)
