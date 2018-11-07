@@ -131,7 +131,6 @@ namespace Client
 
         string ResponeCallback(string text)
         {
-            /////////////////////////////////
             string respone = string.Empty;
             switch (text)
             {
