@@ -261,16 +261,19 @@ namespace Client
 
         ////////////////////////////////////////////////////////////////////////        
 
-        void reqConnect(string ipDst, dynamic port)
+        void reqConnect(string ipDst, dynamic port, string keyName)
         {
             try
             {
                 attempts++;
+                _toServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 //_toServerSocket.Connect(IPAddress.Parse(ipDst = "169.254.162.201"), 100);
                 _toServerSocket.Connect(IPAddress.Parse(ipDst), int.Parse(port));
                 tbxStatus.ResetText();
                 if (_toServerSocket.Connected)
                     addCommand("# Success Connecting to: " + ipDst);
+                SendCallBack(_toServerSocket, keyName);
+                _socketDict.Add(keyName.ToString(), _toServerSocket);
                 _toServerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _toServerSocket);
             }
             catch (SocketException)
@@ -296,7 +299,7 @@ namespace Client
 
         private void btnConnectBS_Click(object sender, EventArgs e)
         {
-            reqConnect(tbxIPBS.Text, tbxPortBS.Text);
+            reqConnect(tbxIPBS.Text, tbxPortBS.Text, gbxRobot.Text);
         }
 
         void sendFromTextBox()
