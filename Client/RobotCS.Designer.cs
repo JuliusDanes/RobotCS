@@ -68,7 +68,7 @@
             this.gbxBS.Size = new System.Drawing.Size(303, 85);
             this.gbxBS.TabIndex = 14;
             this.gbxBS.TabStop = false;
-            this.gbxBS.Text = "Base Station";
+            this.gbxBS.Text = "BaseStation";
             // 
             // tbxIPBS
             // 

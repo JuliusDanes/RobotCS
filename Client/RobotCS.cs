@@ -20,9 +20,11 @@ namespace Client
         public RobotCS(dynamic args)
         {
             InitializeComponent();
-            useAs = args
-;        }
+            useAs = args;
+        }
 
+        HelperClass hc = new HelperClass();
+        System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
         static byte[] _buffer = new byte[1024];
         static Socket _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         static Socket _toServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -62,7 +64,7 @@ namespace Client
         {
             addCommand("# Setting up server...");
             addCommand("# IP " + this.Text + "  : " + tbxIPRobot.Text);
-            _serverSocket.Bind(new IPEndPoint(IPAddress.Any, int.Parse(port)));
+            _serverSocket.Bind(new IPEndPoint(IPAddress.Any, this.port = int.Parse(port)));
             _serverSocket.Listen(1);
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
         }
@@ -86,7 +88,7 @@ namespace Client
         }
 
         private void ReceiveCallBack(IAsyncResult AR) /**/
-        {                        
+        {
             Socket socket = (Socket)AR.AsyncState;
             int received = socket.EndReceive(AR);
             byte[] dataBuf = new byte[received];
@@ -95,28 +97,37 @@ namespace Client
             var _data = text.Split('|');
             addCommand("> " + socketToIP(socket) + " : " + _data[0]);
 
-            string respone = ResponeCallback(_data[0]);
+            string respone = ResponeCallback(_data[0], socket);
             if (!string.IsNullOrEmpty(respone))
             {
                 if (_data.Count() == 1)
                     SendCallBack(socket, respone);
                 else
-                    sendByIPList(_data[1], respone);
+                    sendByHostList(_data[1], respone);
             }
             socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
         }
 
-        void sendByIPList(dynamic inputListIP, string txtMsg)
+        void sendByHostList(dynamic inputHostList, string txtMsg)
         {
             try
             {
-                var listIP = inputListIP.Split(',');
-                foreach (var _listIP in listIP)
-                    SendCallBack(_socketDict[_socketDict.Keys.Where(IP => IP.StartsWith(_listIP)).ElementAtOrDefault(0).ToString()], txtMsg);
+                var hostList = inputHostList.Split(',');
+                foreach (var _hostList in hostList)
+                {
+                    try
+                    {
+                        SendCallBack(_socketDict[_socketDict.Keys.Where(host => host.StartsWith(_hostList)).ElementAtOrDefault(0).ToString()], txtMsg);
+                    }
+                    catch (Exception)
+                    {
+                        continue;   // If host not found then Skip
+                    }
+                }
             }
             catch (Exception e)
             {
-                MessageBox.Show("IP Not Found :<");
+                MessageBox.Show("host Not Found :<");
             }
         }
 
@@ -129,133 +140,164 @@ namespace Client
             _dstSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _dstSocket);
         }
 
-        string ResponeCallback(string text)
+        string ResponeCallback(dynamic text, Socket socket)
         {
             string respone = string.Empty;
-            switch (text)
+            string objName = null;
+            int[] _posXY = new int[2];
+
+            if (Regex.IsMatch(text, @"BaseStation"))
             {
-                /// 1. DEFAULT COMMANDS ///
-                case "S": //STOP
-                    respone = "STOP";
-                    break;
-                case "s": //START
-                    respone = "START";
-                    break;
-                case "W": //WELCOME (welcome message)
-                    respone = "WELCOME";
-                    break;
-                case "Z": //RESET (Reset Game)
-                    respone = "RESET";
-                    break;
-                case "U": //TESTMODE_ON (TestMode On)
-                    respone = "TESTMODE_ON";
-                    break;
-                case "u": //TESTMODE_OFF (TestMode Off)
-                    respone = "TESTMODE_OFF";
-                    break;
+                // If will rename key in socket dictionary
+                Socket temp = _socketDict[socket.RemoteEndPoint.ToString()];    // Backup
+                _socketDict.Remove(socket.RemoteEndPoint.ToString());           // Remove with old key
+                _socketDict.Add(text, temp);                                    // Add with new key
+                Dictionary<Control, Control> ctrl = new Dictionary<Control, Control>();
+                if (text == "BaseStation")
+                    ctrl.Add(tbxIPBS, tbxPortBS);
 
-                /// 2. PENALTY COMMANDS ///
-                case "y": //YELLOW_CARD_MAGENTA	
-                    respone = "YELLOW_CARD_MAGENTA";
-                    break;
-                case "Y": //YELLOW_CARD_CYAN
-                    respone = "YELLOW_CARD_CYAN";
-                    break;
-                case "r": //RED_CARD_MAGENTA
-                    respone = "RED_CARD_MAGENTA";
-                    break;
-                case "R": //RED_CARD_CYAN
-                    respone = "RED_CARD_CYAN";
-                    break;
-                case "b": //DOUBLE_YELLOW_MAGENTA
-                    respone = "DOUBLE_YELLOW_MAGENTA";
-                    break;
-                case "B": //DOUBLE_YELLOW_CYAN
-                    respone = "DOUBLE_YELLOW_CYAN";
-                    break;
-
-                /// 3. GAME FLOW COMMANDS ///
-                case "1": //FIRST_HALF
-                    respone = "FIRST_HALF";
-                    break;
-                case "2": //SECOND_HALF
-                    respone = "SECOND_HALF";
-                    break;
-                case "3": //FIRST_HALF_OVERTIME
-                    respone = "FIRST_HALF_OVERTIME";
-                    break;
-                case "4": //SECOND_HALF_OVERTIME
-                    respone = "SECOND_HALF_OVERTIME";
-                    break;
-                case "h": //HALF_TIME
-                    respone = "HALF_TIME";
-                    break;
-                case "e": //END_GAME (ends 2nd part, may go into overtime)
-                    respone = "END_GAME";
-                    break;
-                case "z": //GAMEOVER (Game Over)
-                    respone = "GAMEOVER";
-                    break;
-                case "L": //PARKING
-                    respone = "PARKING";
-                    break;
-
-                /// 4. GOAL STATUS ///
-                case "a": //GOAL_MAGENTA
-                    respone = "GOAL_MAGENTA";
-                    break;
-                case "A": //GOAL_CYAN
-                    respone = "GOAL_CYAN";
-                    break;
-                case "d": //SUBGOAL_MAGENTA
-                    respone = "SUBGOAL_MAGENTA";
-                    break;
-                case "D": //SUBGOAL_CYAN
-                    respone = "SUBGOAL_CYAN";
-                    break;
-
-                /// 5. GAME FLOW COMMANDS ///
-                case "k": //KICKOFF_MAGENTA
-                    respone = "KICKOFF_MAGENTA";
-                    break;
-                case "K": //KICKOFF_CYAN
-                    respone = "KICKOFF_CYAN";
-                    break;
-                case "f": //FREEKICK_MAGENTA
-                    respone = "FREEKICK_MAGENTA";
-                    break;
-                case "F": //FREEKICK_CYAN
-                    respone = "FREEKICK_CYAN";
-                    break;
-                case "g": //KICK_MAGENTA
-                    respone = "KICK_MAGENTA";
-                    break;
-                case "G": //GOALKICK_CYAN
-                    respone = "GOALKICK_CYAN";
-                    break;
-                case "t": //THROWN_MAGENTA
-                    respone = "THROWN_MAGENTA";
-                    break;
-                case "T": //THROWN_CYAN
-                    respone = "THROWN_CYAN";
-                    break;
-                case "c": //CORNER_MAGENTA
-                    respone = "CORNER_MAGENTA";
-                    break;
-                case "C": //CORNER_CYAN
-                    respone = "CORNER_CYAN";
-                    break;
-
-                /// 6. OTHERS ///
-                case "get time": //TIME NOW
-                    respone = DateTime.Now.ToLongTimeString();
-                    break;
-                default:
-                    //addCommand("# Invalid Command :<");
-                    break;
+                hc.SetText(this, (ctrl.Keys.ElementAtOrDefault(0)), socketToIP(socket));
+                hc.SetText(this, ctrl[ctrl.Keys.ElementAtOrDefault(0)], this.port.ToString());
             }
+            else if ((_socketDict.ContainsKey("RefereeBox")) && (socket.RemoteEndPoint.ToString().Contains(_socketDict["RefereeBox"].RemoteEndPoint.ToString())))
+            {
+                // If socket is Referee Box socket
+                switch (text)
+                {
+                    /// 1. DEFAULT COMMANDS ///
+                    case "S": //STOP
+                        timer.Stop();
+                        respone = "STOP";
+                        goto broadcast;
+                    case "s": //START
+                        //timer.Start();
+                        respone = "START";
+                        goto broadcast;
+                    case "W": //WELCOME (welcome message)
+                        respone = "WELCOME";
+                        goto broadcast;
+                    case "Z": //RESET (Reset Game)
+                        respone = "RESET";
+                        goto broadcast;
+                    case "U": //TESTMODE_ON (TestMode On)
+                        respone = "TESTMODE_ON";
+                        break;
+                    case "u": //TESTMODE_OFF (TestMode Off)
+                        respone = "TESTMODE_OFF";
+                        break;
 
-            byte[] data = Encoding.ASCII.GetBytes(respone);
+                    /// 2. PENALTY COMMANDS ///
+                    case "y": //YELLOW_CARD_MAGENTA	
+                        respone = "YELLOW_CARD_MAGENTA";
+                        break;
+                    case "Y": //YELLOW_CARD_CYAN
+                        respone = "YELLOW_CARD_CYAN";
+                        break;
+                    case "r": //RED_CARD_MAGENTA
+                        respone = "RED_CARD_MAGENTA";
+                        break;
+                    case "R": //RED_CARD_CYAN
+                        respone = "RED_CARD_CYAN";
+                        break;
+                    case "b": //DOUBLE_YELLOW_MAGENTA
+                        respone = "DOUBLE_YELLOW_MAGENTA";
+                        break;
+                    case "B": //DOUBLE_YELLOW_CYAN
+                        respone = "DOUBLE_YELLOW_CYAN";
+                        break;
+
+                    /// 3. GAME FLOW COMMANDS ///
+                    case "1": //FIRST_HALF
+                        respone = "FIRST_HALF";
+                        goto broadcast;
+                    case "2": //SECOND_HALF
+                        respone = "SECOND_HALF";
+                        goto broadcast;
+                    case "3": //FIRST_HALF_OVERTIME
+                        respone = "FIRST_HALF_OVERTIME";
+                        goto broadcast; ;
+                    case "4": //SECOND_HALF_OVERTIME
+                        respone = "SECOND_HALF_OVERTIME";
+                        goto broadcast; ;
+                    case "h": //HALF_TIME
+                        respone = "HALF_TIME";
+                        goto broadcast; ;
+                    case "e": //END_GAME (ends 2nd part, may go into overtime)
+                        respone = "END_GAME";
+                        goto broadcast; ;
+                    case "z": //GAMEOVER (Game Over)
+                        respone = "GAMEOVER";
+                        goto broadcast; ;
+                    case "L": //PARKING
+                        respone = "PARKING";
+                        break;
+
+                    /// 4. GOAL STATUS ///
+                    case "a": //GOAL_MAGENTA
+                        respone = "GOAL_MAGENTA";
+                        break;
+                    case "A": //GOAL_CYAN
+                        respone = "GOAL_CYAN";
+                        break;
+                    case "d": //SUBGOAL_MAGENTA
+                        respone = "SUBGOAL_MAGENTA";
+                        break;
+                    case "D": //SUBGOAL_CYAN
+                        respone = "SUBGOAL_CYAN";
+                        break;
+
+                    /// 5. GAME FLOW COMMANDS ///
+                    case "k": //KICKOFF_MAGENTA
+                        respone = "KICKOFF_MAGENTA";
+                        break;
+                    case "K": //KICKOFF_CYAN
+                        respone = "KICKOFF_CYAN";
+                        break;
+                    case "f": //FREEKICK_MAGENTA
+                        respone = "FREEKICK_MAGENTA";
+                        break;
+                    case "F": //FREEKICK_CYAN
+                        respone = "FREEKICK_CYAN";
+                        break;
+                    case "g": //KICK_MAGENTA
+                        respone = "KICK_MAGENTA";
+                        break;
+                    case "G": //GOALKICK_CYAN
+                        respone = "GOALKICK_CYAN";
+                        break;
+                    case "t": //THROWN_MAGENTA
+                        respone = "THROWN_MAGENTA";
+                        break;
+                    case "T": //THROWN_CYAN
+                        respone = "THROWN_CYAN";
+                        break;
+                    case "c": //CORNER_MAGENTA
+                        respone = "CORNER_MAGENTA";
+                        break;
+                    case "C": //CORNER_CYAN
+                        respone = "CORNER_CYAN";
+                        break;
+
+                    /// 6. OTHERS ///
+                    case "get time": //TIME NOW
+                        respone = DateTime.Now.ToLongTimeString();
+                        break;
+                    default:
+                        //addCommand("# Invalid Command :<");
+                        break;
+                }
+            }
+            goto end;
+
+            broadcast:
+            sendByHostList("Robot1,Robot2,Robot3", respone);
+            respone = string.Empty;
+
+            multicast:
+            sendByHostList("Robot2,Robot3", respone);
+            respone = string.Empty;
+
+            end:
             return respone;
         }
 
@@ -272,8 +314,8 @@ namespace Client
                 tbxStatus.ResetText();
                 if (_toServerSocket.Connected)
                     addCommand("# Success Connecting to: " + ipDst);
-                SendCallBack(_toServerSocket, keyName);
-                _socketDict.Add(keyName.ToString(), _toServerSocket);
+                SendCallBack(_toServerSocket, gbxRobot.Text);
+                _socketDict.Add(keyName, _toServerSocket);
                 _toServerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _toServerSocket);
             }
             catch (SocketException)
@@ -299,7 +341,7 @@ namespace Client
 
         private void btnConnectBS_Click(object sender, EventArgs e)
         {
-            reqConnect(tbxIPBS.Text, tbxPortBS.Text, gbxRobot.Text);
+            reqConnect(tbxIPBS.Text, tbxPortBS.Text, gbxBS.Text);
         }
 
         void sendFromTextBox()
@@ -308,7 +350,7 @@ namespace Client
             if (dataMessage.Count() == 1) //for to be Client
                 SendCallBack(_toServerSocket, dataMessage[0]);
             else if (dataMessage.Count() == 2)  //for to be Server
-                sendByIPList(dataMessage[1], dataMessage[0]);
+                sendByHostList(dataMessage[1], dataMessage[0]);
             else
                 MessageBox.Show("Incorrect Format!");
             tbxMessage.ResetText();
@@ -348,7 +390,7 @@ namespace Client
         void tbxXYChanged(object sender, EventArgs e)
         {
             string dtEncoder = "X:"+tbxX.Text +",Y:"+tbxY.Text;
-            Thread th_Send = new Thread(obj => SendCallBack(_toServerSocket, dtEncoder));
+            Thread th_Send = new Thread(obj => SendCallBack(_socketDict["BaseStation"], dtEncoder));
             th_Send.Start();
         }
 

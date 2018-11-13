@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="bakC.cs" />
+    <Compile Include="HelperClass.cs" />
     <Compile Include="RobotCS.cs">
       <SubType>Form</SubType>
     </Compile>
