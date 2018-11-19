@@ -131,13 +131,19 @@ namespace Client
             }
         }
 
+        List<Thread> aList = new List<Thread>();
+        int n = 0;
+
         void SendCallBack(Socket _dstSocket, string txtMessage)
         {
             //MessageBox.Show("wkkwkw 3 " + txtMessage + " --- " + typeMsg);
-            addCommand("@ " + socketToIP(_dstSocket) + " : " + txtMessage);
+            //addCommand("@ " + socketToIP(_dstSocket) + " : " + txtMessage);
+            aList.Add(new Thread(b => addCommand("@ " + socketToIP(_dstSocket) + " : " + txtMessage)));
+            aList.ElementAtOrDefault(n).Start();
             byte[] buffer = Encoding.ASCII.GetBytes(txtMessage);
             _dstSocket.Send(buffer);
             _dstSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _dstSocket);
+            n++;
         }
 
         string ResponeCallback(dynamic text, Socket socket)
@@ -387,11 +393,17 @@ namespace Client
                 tbxY.Text = (int.Parse(tbxY.Text) + 1).ToString();
         }
 
+        List<Thread> bList = new List<Thread>();
+        int m = 0;
+
         void tbxXYChanged(object sender, EventArgs e)
         {
             string dtEncoder = "X:"+tbxX.Text +",Y:"+tbxY.Text;
-            Thread th_Send = new Thread(obj => SendCallBack(_socketDict["BaseStation"], dtEncoder));
-            th_Send.Start();
+            //Thread th_Send = new Thread(obj => SendCallBack(_socketDict["BaseStation"], dtEncoder));
+            //th_Send.Start();
+            bList.Add(new Thread(obj => SendCallBack(_socketDict["BaseStation"], dtEncoder)));
+            bList.ElementAtOrDefault(m).Start();
+            m++;
         }
 
         private void tbxStatus_TextChanged(object sender, EventArgs e)
