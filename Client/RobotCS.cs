@@ -62,23 +62,43 @@ namespace Client
 
         void SetupServer(dynamic port)
         {
-            addCommand("# Setting up server...");
-            addCommand("# IP " + this.Text + "  : " + tbxIPRobot.Text);
-            _serverSocket.Bind(new IPEndPoint(IPAddress.Any, this.port = int.Parse(port)));
-            _serverSocket.Listen(1);
-            _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+            if ((!string.IsNullOrWhiteSpace(tbxIPBS.Text)) && (!string.IsNullOrWhiteSpace(tbxPortBS.Text)))
+            {
+                try
+                {
+                    addCommand("# Setting up server...");
+                    addCommand("# IP " + this.Text + "  : " + tbxIPRobot.Text);
+                    //lblConnectionBS.Text = "Open";
+                    _serverSocket.Bind(new IPEndPoint(IPAddress.Any, this.port = int.Parse(port)));
+                    _serverSocket.Listen(1);
+                    _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+                }
+                catch (Exception e)
+                {
+                    addCommand("# FAILED to open server connection \n\n" + e);
+                }
+            }
+
         }
 
         private void AcceptCallback(IAsyncResult AR)
         {
-            Socket socket = _serverSocket.EndAccept(AR);
-            _socketDict.Add(socket.RemoteEndPoint.ToString(), socket);
-            //if (socket.Connected)
-            //{
-            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
-            _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
-            addCommand("# Success Connected to: " + socketToIP(socket));
-            //MessageBox.Show(_socketDict.Keys.Where(item => item.StartsWith("192.168.1.107")).ElementAt(0));
+            try
+            {
+                Socket socket = _serverSocket.EndAccept(AR);
+                if (socket.Connected)
+                {
+                    _socketDict.Add(socket.RemoteEndPoint.ToString(), socket);
+                    socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
+                    _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+                    addCommand("# Success Connected to: " + socketToIP(socket));
+                    //MessageBox.Show(_toServerSocketDict.Keys.Where(item => item.StartsWith("192.168.1.107")).ElementAt(0))  
+                }
+            }
+            catch (Exception e)
+            {
+                addCommand("# FAILED to connected \n\n" + e);
+            }
         }
 
         string socketToIP(Socket socket)
@@ -89,23 +109,45 @@ namespace Client
 
         private void ReceiveCallBack(IAsyncResult AR) /**/
         {
-            Socket socket = (Socket)AR.AsyncState;
-            int received = socket.EndReceive(AR);
-            byte[] dataBuf = new byte[received];
-            Array.Copy(_buffer, dataBuf, received);
-            string text = Encoding.ASCII.GetString(dataBuf).Trim();
-            var _data = text.Split('|');
-            addCommand("> " + socketToIP(socket) + " : " + _data[0]);
-
-            string respone = ResponeCallback(_data[0], socket);
-            if (!string.IsNullOrEmpty(respone))
+            try
             {
-                if (_data.Count() == 1)
-                    SendCallBack(socket, respone);
-                else
-                    sendByHostList(_data[1], respone);
+                Socket socket = (Socket)AR.AsyncState;
+                int received = socket.EndReceive(AR);
+                byte[] dataBuf = new byte[received];
+                Array.Copy(_buffer, dataBuf, received);
+                string text = Encoding.ASCII.GetString(dataBuf).Trim();
+                var _data = text.Split('|');
+                addCommand("> " + socketToIP(socket) + " : " + _data[0]);
+
+                string respone = ResponeCallback(_data[0], socket);
+                if (!string.IsNullOrEmpty(respone))
+                {
+                    if (_data.Count() == 1)
+                        SendCallBack(socket, respone);
+                    else
+                        sendByHostList(_data[1], respone);
+                }
+                socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
             }
-            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
+            catch (Exception e)
+            {
+                addCommand("# FAILED to receive message \n\n" + e);
+            }
+        }
+
+        void SendCallBack(Socket _dstSocket, string txtMessage)
+        {
+            try
+            {
+                addCommand("@ " + socketToIP(_dstSocket) + " : " + txtMessage);
+                byte[] buffer = Encoding.ASCII.GetBytes(txtMessage);
+                _dstSocket.Send(buffer);
+                _dstSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _dstSocket);
+            }
+            catch (Exception e)
+            {
+                addCommand("# FAILED to send message \n\n" + e);
+            }
         }
 
         void sendByHostList(dynamic inputHostList, string txtMsg)
@@ -127,32 +169,35 @@ namespace Client
             }
             catch (Exception e)
             {
+                addCommand("# FAILED to send message \n\n" + e);
                 MessageBox.Show("host Not Found :<");
             }
-        }
-
-        List<Thread> aList = new List<Thread>();
-        int n = 0;
-
-        void SendCallBack(Socket _dstSocket, string txtMessage)
-        {
-            //MessageBox.Show("wkkwkw 3 " + txtMessage + " --- " + typeMsg);
-            //addCommand("@ " + socketToIP(_dstSocket) + " : " + txtMessage);
-            aList.Add(new Thread(b => addCommand("@ " + socketToIP(_dstSocket) + " : " + txtMessage)));
-            aList.ElementAtOrDefault(n).Start();
-            byte[] buffer = Encoding.ASCII.GetBytes(txtMessage);
-            _dstSocket.Send(buffer);
-            _dstSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _dstSocket);
-            n++;
-        }
+        }        
 
         string ResponeCallback(dynamic text, Socket socket)
         {
             string respone = string.Empty;
-            string objName = null;
-            int[] _posXY = new int[2];
+            if (Regex.IsMatch(text, @"X:[-]{0,1}[0-9]{1,4},Y:[-]{0,1}[0-9]{1,4}"))
+            {
+                // If message is data X & Y from encoder
+                /// Scale is 1 : 20 
+                int[] _posXY = new int[2];
+                var posXY = text.Split(',');
+                if (posXY.Length == 2) // If data receive only one X & Y
+                {
+                    _posXY[0] = int.Parse(posXY[0].Split(':')[1]);
+                    _posXY[1] = int.Parse(posXY[1].Split(':')[1]);
+                }
+                else // If data receive multi X & Y (error problems)
+                {
+                    _posXY[0] = int.Parse(posXY[posXY.Length - 2].Split(':')[2]);
+                    _posXY[1] = int.Parse(posXY[posXY.Length - 1].Split(':')[1]);
+                }
 
-            if (Regex.IsMatch(text, @"BaseStation"))
+                hc.SetText(this, tbxX, _posXY[0].ToString());          // On encoder tbx
+                hc.SetText(this, tbxY, _posXY[1].ToString());
+            }
+            else if (Regex.IsMatch(text, @"BaseStation"))
             {
                 // If will rename key in socket dictionary
                 Socket temp = _socketDict[socket.RemoteEndPoint.ToString()];    // Backup
@@ -176,6 +221,7 @@ namespace Client
                         respone = "STOP";
                         goto broadcast;
                     case "s": //START
+                        //lblTimer.Text = "00:00";
                         //timer.Start();
                         respone = "START";
                         goto broadcast;
@@ -195,22 +241,22 @@ namespace Client
                     /// 2. PENALTY COMMANDS ///
                     case "y": //YELLOW_CARD_MAGENTA	
                         respone = "YELLOW_CARD_MAGENTA";
-                        break;
+                        goto broadcast;
                     case "Y": //YELLOW_CARD_CYAN
                         respone = "YELLOW_CARD_CYAN";
-                        break;
+                        goto broadcast;
                     case "r": //RED_CARD_MAGENTA
                         respone = "RED_CARD_MAGENTA";
-                        break;
+                        goto broadcast;
                     case "R": //RED_CARD_CYAN
                         respone = "RED_CARD_CYAN";
-                        break;
+                        goto broadcast;
                     case "b": //DOUBLE_YELLOW_MAGENTA
                         respone = "DOUBLE_YELLOW_MAGENTA";
-                        break;
+                        goto broadcast;
                     case "B": //DOUBLE_YELLOW_CYAN
                         respone = "DOUBLE_YELLOW_CYAN";
-                        break;
+                        goto broadcast;
 
                     /// 3. GAME FLOW COMMANDS ///
                     case "1": //FIRST_HALF
@@ -320,7 +366,8 @@ namespace Client
                 tbxStatus.ResetText();
                 if (_toServerSocket.Connected)
                     addCommand("# Success Connecting to: " + ipDst);
-                SendCallBack(_toServerSocket, gbxRobot.Text);
+                //connection.Text = "Connected";
+                SendCallBack(_toServerSocket, this.Text);
                 _socketDict.Add(keyName, _toServerSocket);
                 _toServerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _toServerSocket);
             }
@@ -330,7 +377,13 @@ namespace Client
                 addCommand("# IP This Device  : " + myIP);
                 addCommand("# IP Destination  : " + ipDst);
                 addCommand("# Connection attempts: " + attempts.ToString());
+                //connection.Text = "Disconnected";
             }
+        }
+
+        private void btnConnectBS_Click(object sender, EventArgs e)
+        {
+            reqConnect(tbxIPBS.Text, tbxPortBS.Text, gbxBS.Text);
         }
 
         string GetIPAddress()
@@ -343,11 +396,6 @@ namespace Client
                 if (IP.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                     myIP = IP.ToString();
             return myIP;
-        }
-
-        private void btnConnectBS_Click(object sender, EventArgs e)
-        {
-            reqConnect(tbxIPBS.Text, tbxPortBS.Text, gbxBS.Text);
         }
 
         void sendFromTextBox()
