@@ -90,6 +90,7 @@ namespace Client
                 {
                     _socketDict.Add(socket.RemoteEndPoint.ToString(), socket);
                     socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
+                    new Thread(obj => socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket)).Start();
                     _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
                     addCommand("# Success Connected to: " + socketToIP(socket));
                     //MessageBox.Show(_toServerSocketDict.Keys.Where(item => item.StartsWith("192.168.1.107")).ElementAt(0))  
@@ -107,7 +108,7 @@ namespace Client
             return _temp[0];
         }
 
-        private void ReceiveCallBack(IAsyncResult AR) /**/
+        private void ReceiveCallBack(IAsyncResult AR)
         {
             try
             {
@@ -118,6 +119,7 @@ namespace Client
                 string text = Encoding.ASCII.GetString(dataBuf).Trim();
                 var _data = text.Split('|');
                 addCommand("> " + socketToIP(socket) + " : " + _data[0]);
+                //new Thread(obj => addCommand("> " + socketToIP(socket) + " : " + _data[0]));
 
                 string respone = ResponeCallback(_data[0], socket);
                 if (!string.IsNullOrEmpty(respone))
@@ -128,6 +130,7 @@ namespace Client
                         sendByHostList(_data[1], respone);
                 }
                 socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
+                //new Thread(obj => socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket)).Start();
             }
             catch (Exception e)
             {
@@ -142,7 +145,8 @@ namespace Client
                 addCommand("@ " + socketToIP(_dstSocket) + " : " + txtMessage);
                 byte[] buffer = Encoding.ASCII.GetBytes(txtMessage);
                 _dstSocket.Send(buffer);
-                _dstSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _dstSocket);
+                //_dstSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _dstSocket);
+                new Thread(obj => _dstSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _dstSocket)).Start();
             }
             catch (Exception e)
             {
@@ -369,7 +373,8 @@ namespace Client
                 //connection.Text = "Connected";
                 SendCallBack(_toServerSocket, this.Text);
                 _socketDict.Add(keyName, _toServerSocket);
-                _toServerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _toServerSocket);
+                //_toServerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _toServerSocket);
+                new Thread(obj => _toServerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _toServerSocket)).Start();
             }
             catch (SocketException)
             {
@@ -441,17 +446,12 @@ namespace Client
                 tbxY.Text = (int.Parse(tbxY.Text) + 1).ToString();
         }
 
-        List<Thread> bList = new List<Thread>();
-        int m = 0;
-
-        void tbxXYChanged(object sender, EventArgs e)
+        private void tbxEncoder_KeyDown(object sender, KeyEventArgs e)
         {
-            string dtEncoder = "X:"+tbxX.Text +",Y:"+tbxY.Text;
-            //Thread th_Send = new Thread(obj => SendCallBack(_socketDict["BaseStation"], dtEncoder));
-            //th_Send.Start();
-            bList.Add(new Thread(obj => SendCallBack(_socketDict["BaseStation"], dtEncoder)));
-            bList.ElementAtOrDefault(m).Start();
-            m++;
+            changeCounter(sender, e);
+
+            string dtEncoder = "X:" + tbxX.Text + ",Y:" + tbxY.Text;
+            new Thread(obj => SendCallBack(_socketDict["BaseStation"], dtEncoder)).Start();
         }
 
         private void tbxStatus_TextChanged(object sender, EventArgs e)
