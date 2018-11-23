@@ -141,7 +141,8 @@
             this.tbxX.Size = new System.Drawing.Size(100, 20);
             this.tbxX.TabIndex = 4;
             this.tbxX.Text = "0";
-            this.tbxX.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbxEncoder_KeyDown);
+            this.tbxX.TextChanged += new System.EventHandler(this.tbxXY_TextChanged);
+            this.tbxX.KeyDown += new System.Windows.Forms.KeyEventHandler(this.changeCounter);
             // 
             // lblX
             // 
@@ -168,7 +169,8 @@
             this.tbxY.Size = new System.Drawing.Size(100, 20);
             this.tbxY.TabIndex = 5;
             this.tbxY.Text = "0";
-            this.tbxY.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbxEncoder_KeyDown);
+            this.tbxY.TextChanged += new System.EventHandler(this.tbxXY_TextChanged);
+            this.tbxY.KeyDown += new System.Windows.Forms.KeyEventHandler(this.changeCounter);
             // 
             // btnSend
             // 
