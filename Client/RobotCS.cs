@@ -62,21 +62,21 @@ namespace Client
 
         void SetupServer(dynamic port)
         {
-            if ((!string.IsNullOrWhiteSpace(tbxIPBS.Text)) && (!string.IsNullOrWhiteSpace(tbxPortBS.Text)))
+            try
             {
-                try
+                if ((!string.IsNullOrWhiteSpace(tbxIPBS.Text)) && (!string.IsNullOrWhiteSpace(tbxPortBS.Text)))
                 {
                     addCommand("# Setting up server...");
-                    addCommand("# IP " + this.Text + "  : " + tbxIPRobot.Text);
+                    addCommand("# IP " + this.Text + "  : " + tbxIPBS.Text);
                     //lblConnectionBS.Text = "Open";
                     _serverSocket.Bind(new IPEndPoint(IPAddress.Any, this.port = int.Parse(port)));
                     _serverSocket.Listen(1);
                     _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
                 }
-                catch (Exception e)
-                {
-                    addCommand("# FAILED to open server connection \n\n" + e);
-                }
+            }
+            catch (Exception e)
+            {
+                addCommand("# FAILED to open server connection \n\n" + e);
             }
 
         }
@@ -214,7 +214,8 @@ namespace Client
                 hc.SetText(this, (ctrl.Keys.ElementAtOrDefault(0)), socketToIP(socket));
                 hc.SetText(this, ctrl[ctrl.Keys.ElementAtOrDefault(0)], this.port.ToString());
             }
-            else if ((_socketDict.ContainsKey("RefereeBox")) && (socket.RemoteEndPoint.ToString().Contains(_socketDict["RefereeBox"].RemoteEndPoint.ToString())))
+            //else if ((_socketDict.ContainsKey("RefereeBox")) && (socket.RemoteEndPoint.ToString().Contains(_socketDict["RefereeBox"].RemoteEndPoint.ToString())))
+            else if (true)
             {
                 // If socket is Referee Box socket
                 switch (text)
@@ -335,7 +336,7 @@ namespace Client
                         break;
 
                     /// 6. OTHERS ///
-                    case "get time": //TIME NOW
+                    case "get_time": //TIME NOW
                         respone = DateTime.Now.ToLongTimeString();
                         break;
                     default:
@@ -346,11 +347,11 @@ namespace Client
             goto end;
 
             broadcast:
-            sendByHostList("Robot1,Robot2,Robot3", respone);
+            sendByHostList("Robot1,Robot2,Robot3,BaseStation", respone);
             respone = string.Empty;
 
             multicast:
-            sendByHostList("Robot2,Robot3", respone);
+            sendByHostList("Robot2,Robot3,BaseStation", respone);
             respone = string.Empty;
 
             end:
@@ -407,7 +408,7 @@ namespace Client
         {
             var dataMessage = tbxMessage.Text.Trim().Split('|');
             if (dataMessage.Count() == 1) //for to be Client
-                SendCallBack(_toServerSocket, dataMessage[0]);
+                SendCallBack(_socketDict["BaseStation"], dataMessage[0]);
             else if (dataMessage.Count() == 2)  //for to be Server
                 sendByHostList(dataMessage[1], dataMessage[0]);
             else
