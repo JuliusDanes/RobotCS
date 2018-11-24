@@ -214,8 +214,8 @@ namespace Client
                 hc.SetText(this, (ctrl.Keys.ElementAtOrDefault(0)), socketToIP(socket));
                 hc.SetText(this, ctrl[ctrl.Keys.ElementAtOrDefault(0)], this.port.ToString());
             }
-            //else if ((_socketDict.ContainsKey("RefereeBox")) && (socket.RemoteEndPoint.ToString().Contains(_socketDict["RefereeBox"].RemoteEndPoint.ToString())))
-            else if (true)
+            else if ((_socketDict.ContainsKey("RefereeBox")) && (socket.RemoteEndPoint.ToString().Contains(_socketDict["RefereeBox"].RemoteEndPoint.ToString())))
+            //else if (true)
             {
                 // If socket is Referee Box socket
                 switch (text)
