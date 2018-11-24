@@ -52,13 +52,20 @@ namespace Client
 
         private void addCommand(string text)
         {
-            if (this.tbxStatus.InvokeRequired)
+            try
             {
-                addCommandCallback d = new addCommandCallback(addCommand);
-                this.Invoke(d, new object[] { text });
+                if (this.tbxStatus.InvokeRequired)
+                {
+                    addCommandCallback d = new addCommandCallback(addCommand);
+                    this.Invoke(d, new object[] { text });
+                }
+                else
+                    this.tbxStatus.Text += text + Environment.NewLine;
             }
-            else
-                this.tbxStatus.Text += text + Environment.NewLine;
+            catch (Exception e)
+            {
+                addCommand("# Error set text tbxStatus \n\n" + e);
+            }
         }
 
         void SetupServer(dynamic port)
