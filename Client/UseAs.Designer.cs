@@ -54,6 +54,7 @@
             this.cmbxUseAs.Name = "cmbxUseAs";
             this.cmbxUseAs.Size = new System.Drawing.Size(125, 21);
             this.cmbxUseAs.TabIndex = 1;
+            this.cmbxUseAs.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cmbxUseAs_KeyDown);
             // 
             // pbxRobot
             // 

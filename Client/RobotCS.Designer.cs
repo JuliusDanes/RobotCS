@@ -35,7 +35,7 @@
             this.lblIPBS = new System.Windows.Forms.Label();
             this.btnConnectBS = new System.Windows.Forms.Button();
             this.btnDisconnectBS = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.gbxEncoder = new System.Windows.Forms.GroupBox();
             this.tbxX = new System.Windows.Forms.TextBox();
             this.lblX = new System.Windows.Forms.Label();
             this.lblY = new System.Windows.Forms.Label();
@@ -50,9 +50,15 @@
             this.btnOpenServer = new System.Windows.Forms.Button();
             this.btnCloseServer = new System.Windows.Forms.Button();
             this.tbxMessage = new System.Windows.Forms.RichTextBox();
+            this.gbxGoto = new System.Windows.Forms.GroupBox();
+            this.tbxGotoX = new System.Windows.Forms.TextBox();
+            this.lblGotoX = new System.Windows.Forms.Label();
+            this.lblGotoY = new System.Windows.Forms.Label();
+            this.tbxGotoY = new System.Windows.Forms.TextBox();
             this.gbxBS.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.gbxEncoder.SuspendLayout();
             this.gbxRobot.SuspendLayout();
+            this.gbxGoto.SuspendLayout();
             this.SuspendLayout();
             // 
             // gbxBS
@@ -76,6 +82,7 @@
             this.tbxIPBS.Name = "tbxIPBS";
             this.tbxIPBS.Size = new System.Drawing.Size(150, 20);
             this.tbxIPBS.TabIndex = 0;
+            this.tbxIPBS.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Connection_KeyEnter);
             // 
             // lblPortBS
             // 
@@ -92,6 +99,7 @@
             this.tbxPortBS.Name = "tbxPortBS";
             this.tbxPortBS.Size = new System.Drawing.Size(50, 20);
             this.tbxPortBS.TabIndex = 1;
+            this.tbxPortBS.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Connection_KeyEnter);
             // 
             // lblIPBS
             // 
@@ -121,24 +129,24 @@
             this.btnDisconnectBS.Text = "Disconnect";
             this.btnDisconnectBS.UseVisualStyleBackColor = true;
             // 
-            // groupBox1
+            // gbxEncoder
             // 
-            this.groupBox1.Controls.Add(this.tbxX);
-            this.groupBox1.Controls.Add(this.lblX);
-            this.groupBox1.Controls.Add(this.lblY);
-            this.groupBox1.Controls.Add(this.tbxY);
-            this.groupBox1.Location = new System.Drawing.Point(12, 197);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(202, 69);
-            this.groupBox1.TabIndex = 30;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Encoder";
+            this.gbxEncoder.Controls.Add(this.tbxX);
+            this.gbxEncoder.Controls.Add(this.lblX);
+            this.gbxEncoder.Controls.Add(this.lblY);
+            this.gbxEncoder.Controls.Add(this.tbxY);
+            this.gbxEncoder.Location = new System.Drawing.Point(12, 197);
+            this.gbxEncoder.Name = "gbxEncoder";
+            this.gbxEncoder.Size = new System.Drawing.Size(97, 69);
+            this.gbxEncoder.TabIndex = 30;
+            this.gbxEncoder.TabStop = false;
+            this.gbxEncoder.Text = "Encoder";
             // 
             // tbxX
             // 
             this.tbxX.Location = new System.Drawing.Point(37, 19);
             this.tbxX.Name = "tbxX";
-            this.tbxX.Size = new System.Drawing.Size(100, 20);
+            this.tbxX.Size = new System.Drawing.Size(50, 20);
             this.tbxX.TabIndex = 4;
             this.tbxX.Text = "0";
             this.tbxX.TextChanged += new System.EventHandler(this.tbxXY_TextChanged);
@@ -166,7 +174,7 @@
             // 
             this.tbxY.Location = new System.Drawing.Point(37, 43);
             this.tbxY.Name = "tbxY";
-            this.tbxY.Size = new System.Drawing.Size(100, 20);
+            this.tbxY.Size = new System.Drawing.Size(50, 20);
             this.tbxY.TabIndex = 5;
             this.tbxY.Text = "0";
             this.tbxY.TextChanged += new System.EventHandler(this.tbxXY_TextChanged);
@@ -214,6 +222,7 @@
             this.tbxIPRobot.Name = "tbxIPRobot";
             this.tbxIPRobot.Size = new System.Drawing.Size(150, 20);
             this.tbxIPRobot.TabIndex = 0;
+            this.tbxIPRobot.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Connection_KeyEnter);
             // 
             // lblPortRobot
             // 
@@ -230,6 +239,7 @@
             this.tbxPortRobot.Name = "tbxPortRobot";
             this.tbxPortRobot.Size = new System.Drawing.Size(50, 20);
             this.tbxPortRobot.TabIndex = 1;
+            this.tbxPortRobot.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Connection_KeyEnter);
             // 
             // lblIPRobot
             // 
@@ -270,12 +280,62 @@
             this.tbxMessage.Text = "";
             this.tbxMessage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbxMessage_KeyDown);
             // 
+            // gbxGoto
+            // 
+            this.gbxGoto.Controls.Add(this.tbxGotoX);
+            this.gbxGoto.Controls.Add(this.lblGotoX);
+            this.gbxGoto.Controls.Add(this.lblGotoY);
+            this.gbxGoto.Controls.Add(this.tbxGotoY);
+            this.gbxGoto.Location = new System.Drawing.Point(115, 197);
+            this.gbxGoto.Name = "gbxGoto";
+            this.gbxGoto.Size = new System.Drawing.Size(97, 69);
+            this.gbxGoto.TabIndex = 31;
+            this.gbxGoto.TabStop = false;
+            this.gbxGoto.Text = "Goto";
+            // 
+            // tbxGotoX
+            // 
+            this.tbxGotoX.Location = new System.Drawing.Point(37, 19);
+            this.tbxGotoX.Name = "tbxGotoX";
+            this.tbxGotoX.Size = new System.Drawing.Size(50, 20);
+            this.tbxGotoX.TabIndex = 4;
+            this.tbxGotoX.Text = "0";
+            this.tbxGotoX.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbxGoto_KeyDown);
+            // 
+            // lblGotoX
+            // 
+            this.lblGotoX.AutoSize = true;
+            this.lblGotoX.Location = new System.Drawing.Point(17, 22);
+            this.lblGotoX.Name = "lblGotoX";
+            this.lblGotoX.Size = new System.Drawing.Size(14, 13);
+            this.lblGotoX.TabIndex = 2;
+            this.lblGotoX.Text = "X";
+            // 
+            // lblGotoY
+            // 
+            this.lblGotoY.AutoSize = true;
+            this.lblGotoY.Location = new System.Drawing.Point(17, 46);
+            this.lblGotoY.Name = "lblGotoY";
+            this.lblGotoY.Size = new System.Drawing.Size(14, 13);
+            this.lblGotoY.TabIndex = 3;
+            this.lblGotoY.Text = "Y";
+            // 
+            // tbxGotoY
+            // 
+            this.tbxGotoY.Location = new System.Drawing.Point(37, 43);
+            this.tbxGotoY.Name = "tbxGotoY";
+            this.tbxGotoY.Size = new System.Drawing.Size(50, 20);
+            this.tbxGotoY.TabIndex = 5;
+            this.tbxGotoY.Text = "0";
+            this.tbxGotoY.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbxGoto_KeyDown);
+            // 
             // RobotCS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 261);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.gbxGoto);
+            this.Controls.Add(this.gbxEncoder);
             this.Controls.Add(this.gbxBS);
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.tbxStatus);
@@ -286,10 +346,12 @@
             this.Load += new System.EventHandler(this.RobotCS_Load);
             this.gbxBS.ResumeLayout(false);
             this.gbxBS.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.gbxEncoder.ResumeLayout(false);
+            this.gbxEncoder.PerformLayout();
             this.gbxRobot.ResumeLayout(false);
             this.gbxRobot.PerformLayout();
+            this.gbxGoto.ResumeLayout(false);
+            this.gbxGoto.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -313,11 +375,16 @@
         private System.Windows.Forms.Button btnOpenServer;
         private System.Windows.Forms.Button btnCloseServer;
         private System.Windows.Forms.RichTextBox tbxMessage;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox gbxEncoder;
         private System.Windows.Forms.TextBox tbxX;
         private System.Windows.Forms.Label lblX;
         private System.Windows.Forms.Label lblY;
         private System.Windows.Forms.TextBox tbxY;
+        private System.Windows.Forms.GroupBox gbxGoto;
+        private System.Windows.Forms.TextBox tbxGotoX;
+        private System.Windows.Forms.Label lblGotoX;
+        private System.Windows.Forms.Label lblGotoY;
+        private System.Windows.Forms.TextBox tbxGotoY;
     }
 }
 

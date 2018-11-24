@@ -31,6 +31,17 @@ namespace Client
 
         private void btnOk_Click(object sender, EventArgs e)
         {
+            setUseAs();
+        }
+
+        private void cmbxUseAs_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                setUseAs();
+        }
+
+        void setUseAs()
+        {
             if (cmbxUseAs.SelectedIndex != -1)
             {
                 string useAs = cmbxUseAs.SelectedItem.ToString();

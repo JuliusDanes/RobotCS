@@ -460,21 +460,95 @@ namespace Client
         ///
         void changeCounter(object sender, KeyEventArgs e)
         {
+            var obj = ((dynamic)sender).Name;
+            dynamic[,] arr = { { tbxX, tbxY }, { tbxGotoX, tbxGotoY } };
+            int n = 0;
+            for (int i = 0; i < arr.GetLength(0); i++)
+                for (int j = 0; j < arr.GetLength(1); j++)
+                    if (arr[i, j].Name == obj)
+                        n = i;
             if (e.KeyCode == Keys.Right)
-                tbxX.Text = (int.Parse(tbxX.Text) + 1).ToString();
+                arr[n, 0].Text = (int.Parse(arr[n, 0].Text) + 1).ToString();
             else if (e.KeyCode == Keys.Left)
-                tbxX.Text = (int.Parse(tbxX.Text) - 1).ToString();
+                arr[n, 0].Text = (int.Parse(arr[n, 0].Text) - 1).ToString();
             else if (e.KeyCode == Keys.Up)
-                tbxY.Text = (int.Parse(tbxY.Text) - 1).ToString();
+                arr[n, 1].Text = (int.Parse(arr[n, 1].Text) - 1).ToString();
             else if (e.KeyCode == Keys.Down)
-                tbxY.Text = (int.Parse(tbxY.Text) + 1).ToString();
+                arr[n, 1].Text = (int.Parse(arr[n, 1].Text) + 1).ToString();
+        }
+
+        private void tbxGoto_KeyDown(object sender, KeyEventArgs e)
+        {
+            changeCounter(sender, e);
+            if ((e.KeyCode == Keys.Enter) && (!string.IsNullOrWhiteSpace(tbxGotoX.Text)) && (!string.IsNullOrWhiteSpace(tbxGotoY.Text)))
+                 new Thread(obj => GotoLoc(this.Text, tbxX, tbxY, int.Parse(tbxGotoX.Text), int.Parse(tbxGotoY.Text), 20, 20)).Start();
+        }
+        
+        void GotoLoc(string Robot, dynamic encXRobot, dynamic encYRobot, int endX, int endY, int shiftX, int shiftY)
+        {
+            try
+            {
+                int startX = int.Parse(encXRobot.Text), startY = int.Parse(encYRobot.Text);
+                if (startX > endX)
+                    shiftX *= -1;
+                if (startY > endY)
+                    shiftY *= -1;
+                bool[] chk = { true, true };
+                while (chk[0] |= chk[1])
+                {
+                    if (startX != endX)
+                    {
+                        if (Math.Abs(endX - startX) < Math.Abs(shiftX))     // Shift not corresponding
+                            shiftX = (endX - startX);
+                        startX += shiftX;   // On process
+                    }
+                    else
+                        chk[0] = false;     // Done
+                    if (startY != endY)
+                    {
+                        if (Math.Abs(endY - startY) < Math.Abs(shiftY))     // Shift not corresponding
+                            shiftY = (endY - startY);
+                        startY += shiftY;   // On process
+                    }
+                    else
+                        chk[1] = false;     // Done
+
+                    hc.SetText(this, tbxX, startX.ToString());
+                    hc.SetText(this, tbxY, startY.ToString());
+                    Thread.Sleep(100);    // time per limit
+                }
+            }
+            catch (Exception e)
+            {
+            }
+        }
+
+        private void Connection_byDistinct(object sender, EventArgs e)
+        {
+            var obj = ((dynamic)sender).Name;
+            dynamic[,] arr = { { gbxRobot, tbxIPRobot, tbxPortRobot }, { gbxBS, tbxIPBS, tbxPortBS } };
+            int n = 0;
+            for (int i = 0; i < arr.GetLength(0); i++)
+                for (int j = 0; j < arr.GetLength(1); j++)
+                    if (arr[i, j].Name == obj)
+                        n = i;
+            if ( (!String.IsNullOrWhiteSpace(arr[n, 1].Text)) && (!String.IsNullOrWhiteSpace(arr[n, 2].Text)))
+                new Thread(objs => reqConnect(arr[n, 1].Text, arr[n, 2].Text, arr[n, 0].Text)).Start();
+        }
+
+        private void Connection_KeyEnter(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                Connection_byDistinct(sender, e);
         }
 
         private void tbxXY_TextChanged(object sender, EventArgs e)
         {
             string dtEncoder = "X:" + tbxX.Text + ",Y:" + tbxY.Text;
-            new Thread(obj => SendCallBack(_socketDict["BaseStation"], dtEncoder)).Start();
-
+            if (_socketDict.ContainsKey("BaseStation"))
+                new Thread(obj => SendCallBack(_socketDict["BaseStation"], dtEncoder)).Start();
+            else
+                MessageBox.Show("Connection to BaseStation is DISCONNECTED :<");
         }
 
         private void tbxStatus_TextChanged(object sender, EventArgs e)
