@@ -44,7 +44,8 @@ namespace Client
 
         private void btnOpenServer_Click(object sender, EventArgs e)
         {
-            SetupServer(tbxPortRobot.Text);
+            if ((!string.IsNullOrWhiteSpace(tbxIPBS.Text)) && (!string.IsNullOrWhiteSpace(tbxPortBS.Text)))
+                new Thread(obj => SetupServer(tbxPortRobot.Text)).Start();
         }
 
         delegate void addCommandCallback(string text);
@@ -64,11 +65,11 @@ namespace Client
         {
             try
             {
-                if ((!string.IsNullOrWhiteSpace(tbxIPBS.Text)) && (!string.IsNullOrWhiteSpace(tbxPortBS.Text)))
+                if ((!string.IsNullOrWhiteSpace(tbxIPRobot.Text)) && (!string.IsNullOrWhiteSpace(tbxPortRobot.Text)))
                 {
                     addCommand("# Setting up server...");
-                    addCommand("# IP " + this.Text + "  : " + tbxIPBS.Text);
-                    //lblConnectionBS.Text = "Open";
+                    addCommand("# IP " + this.Text + "  : " + tbxIPRobot.Text);
+                    //hc.SetText(this, lblConnectionBS, "Open");
                     _serverSocket.Bind(new IPEndPoint(IPAddress.Any, this.port = int.Parse(port)));
                     _serverSocket.Listen(1);
                     _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
@@ -381,10 +382,10 @@ namespace Client
                 _toServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 //_toServerSocket.Connect(IPAddress.Parse(ipDst = "169.254.162.201"), 100);
                 _toServerSocket.Connect(IPAddress.Parse(ipDst), int.Parse(port));
-                tbxStatus.ResetText();
+                hc.SetText(this, tbxStatus, string.Empty);
                 if (_toServerSocket.Connected)
                     addCommand("# Success Connecting to: " + ipDst);
-                //connection.Text = "Connected";
+                //hc.SetText(this, connection, "Connected");
                 SendCallBack(_toServerSocket, this.Text);
                 _socketDict.Add(keyName, _toServerSocket);
                 _toServerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _toServerSocket);
@@ -392,17 +393,18 @@ namespace Client
             }
             catch (SocketException)
             {
-                tbxStatus.ResetText();
+                hc.SetText(this, tbxStatus, string.Empty);
                 addCommand("# IP This Device  : " + myIP);
                 addCommand("# IP Destination  : " + ipDst);
                 addCommand("# Connection attempts: " + attempts.ToString());
-                //connection.Text = "Disconnected";
+                //hc.SetText(this, connection, "Disconnected");
             }
         }
 
         private void btnConnectBS_Click(object sender, EventArgs e)
         {
-            reqConnect(tbxIPBS.Text, tbxPortBS.Text, gbxBS.Text);
+            if ((!String.IsNullOrWhiteSpace(tbxIPBS.Text)) && (!String.IsNullOrWhiteSpace(tbxPortBS.Text)))
+                new Thread(objs => reqConnect(tbxIPBS.Text, tbxPortBS.Text, gbxBS.Text)).Start();
         }
 
         string GetIPAddress()
