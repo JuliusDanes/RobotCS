@@ -344,6 +344,19 @@ namespace Client
                         break;
                 }
             }
+            else    // for all socket         
+            {
+                switch (text)
+                {
+                    /// OTHERS ///
+                    case "get_time": //TIME NOW
+                        respone = DateTime.Now.ToLongTimeString();
+                        break;
+                    default:
+                        //addCommand("# Invalid Command :<");
+                        break;
+                }
+            }
             goto end;
 
             broadcast:
