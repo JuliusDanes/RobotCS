@@ -75,7 +75,7 @@ namespace Client
                 if ((!string.IsNullOrWhiteSpace(tbxIPRobot.Text)) && (!string.IsNullOrWhiteSpace(tbxPortRobot.Text)))
                 {
                     addCommand("# Setting up server...");
-                    addCommand("# IP " + this.Text + "  : " + tbxIPRobot.Text);
+                    addCommand("# IP this device : " + tbxIPBS.Text + " (" + this.Text + ")");
                     //hc.SetText(this, lblConnectionBS, "Open");
                     _serverSocket.Bind(new IPEndPoint(IPAddress.Any, this.port = int.Parse(port)));
                     _serverSocket.Listen(1);
@@ -383,6 +383,7 @@ namespace Client
 
         void reqConnect(string ipDst, dynamic port, string keyName)
         {
+            addCommand("# Connecting to " + ipDst + " (" + keyName + ")");
             try
             {
                 attempts++;
@@ -391,7 +392,7 @@ namespace Client
                 _toServerSocket.Connect(IPAddress.Parse(ipDst), int.Parse(port));
                 hc.SetText(this, tbxStatus, string.Empty);
                 if (_toServerSocket.Connected)
-                    addCommand("# Success Connecting to: " + ipDst);
+                    addCommand("# Success Connecting to: " + ipDst + " (" + keyName + ")");
                 //hc.SetText(this, connection, "Connected");
                 SendCallBack(_toServerSocket, this.Text);
                 _socketDict.Add(keyName, _toServerSocket);
@@ -401,8 +402,8 @@ namespace Client
             catch (SocketException)
             {
                 hc.SetText(this, tbxStatus, string.Empty);
-                addCommand("# IP This Device  : " + myIP);
-                addCommand("# IP Destination  : " + ipDst);
+                addCommand("# IP This Device  : " + myIP + " (" + this.Text + ")");
+                addCommand("# IP Destination  : " + ipDst + " (" + keyName + ")");
                 addCommand("# Connection attempts: " + attempts.ToString());
                 //hc.SetText(this, connection, "Disconnected");
             }
