@@ -230,12 +230,9 @@ namespace Client
                 {
                     /// 1. DEFAULT COMMANDS ///
                     case "S": //STOP
-                        timer.Stop();
                         respone = "STOP";
                         goto broadcast;
                     case "s": //START
-                        //lblTimer.Text = "00:00";
-                        //timer.Start();
                         respone = "START";
                         goto broadcast;
                     case "W": //WELCOME (welcome message)
@@ -280,19 +277,19 @@ namespace Client
                         goto broadcast;
                     case "3": //FIRST_HALF_OVERTIME
                         respone = "FIRST_HALF_OVERTIME";
-                        goto broadcast; ;
+                        goto broadcast;
                     case "4": //SECOND_HALF_OVERTIME
                         respone = "SECOND_HALF_OVERTIME";
-                        goto broadcast; ;
+                        goto broadcast;
                     case "h": //HALF_TIME
                         respone = "HALF_TIME";
-                        goto broadcast; ;
+                        goto broadcast;
                     case "e": //END_GAME (ends 2nd part, may go into overtime)
                         respone = "END_GAME";
-                        goto broadcast; ;
+                        goto broadcast;
                     case "z": //GAMEOVER (Game Over)
                         respone = "GAMEOVER";
-                        goto broadcast; ;
+                        goto broadcast;
                     case "L": //PARKING
                         respone = "PARKING";
                         break;
@@ -300,10 +297,10 @@ namespace Client
                     /// 4. GOAL STATUS ///
                     case "a": //GOAL_MAGENTA
                         respone = "GOAL_MAGENTA";
-                        break;
+                        goto broadcast;
                     case "A": //GOAL_CYAN
                         respone = "GOAL_CYAN";
-                        break;
+                        goto broadcast;
                     case "d": //SUBGOAL_MAGENTA
                         respone = "SUBGOAL_MAGENTA";
                         break;
@@ -314,18 +311,18 @@ namespace Client
                     /// 5. GAME FLOW COMMANDS ///
                     case "k": //KICKOFF_MAGENTA
                         respone = "KICKOFF_MAGENTA";
-                        break;
+                        goto broadcast;
                     case "K": //KICKOFF_CYAN
                         respone = "KICKOFF_CYAN";
-                        break;
+                        goto broadcast;
                     case "f": //FREEKICK_MAGENTA
                         respone = "FREEKICK_MAGENTA";
                         break;
                     case "F": //FREEKICK_CYAN
                         respone = "FREEKICK_CYAN";
                         break;
-                    case "g": //KICK_MAGENTA
-                        respone = "KICK_MAGENTA";
+                    case "g": //KICKOFF_MAGENTA
+                        respone = "KICKOFF_MAGENTA";
                         break;
                     case "G": //GOALKICK_CYAN
                         respone = "GOALKICK_CYAN";
@@ -369,11 +366,11 @@ namespace Client
 
             broadcast:
             sendByHostList("Robot1,Robot2,Robot3,BaseStation", respone);
-            respone = string.Empty;
+            return respone;
 
             multicast:
             sendByHostList("Robot2,Robot3,BaseStation", respone);
-            respone = string.Empty;
+            return respone;
 
             end:
             return respone;
@@ -553,8 +550,15 @@ namespace Client
 
         private void tbxStatus_TextChanged(object sender, EventArgs e)
         {
-            tbxStatus.SelectionStart = tbxStatus.Text.Length;
-            tbxStatus.ScrollToCaret();
+            try
+            {
+                tbxStatus.SelectionStart = tbxStatus.Text.Length;
+                tbxStatus.ScrollToCaret();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("# Error tbxStatus \n\n" + ex);
+            }
         }
     }
 }
