@@ -430,7 +430,7 @@ namespace Client
             if (dataMessage.Count() == 1) //for to be Client
                 SendCallBack(_socketDict["BaseStation"], dataMessage[0]);
             else if (dataMessage.Count() == 2)  //for to be Server
-                sendByHostList(dataMessage[1], dataMessage[0]);
+                SendCallBack(_socketDict["BaseStation"], tbxMessage.Text.Trim());
             else
                 MessageBox.Show("Incorrect Format!");
             tbxMessage.ResetText();
