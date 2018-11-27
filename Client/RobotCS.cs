@@ -30,7 +30,7 @@ namespace Client
         static Socket _toServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         Dictionary<string, Socket> _socketDict = new Dictionary<string, Socket>();
         internal int port, attempts = 0;
-        internal string useAs, myIP/*, typeMessage*/;
+        internal string useAs, myIP;
         
         private void RobotCS_Load(object sender, EventArgs e)
         {
@@ -38,13 +38,13 @@ namespace Client
             myIP = GetIPAddress();
             tbxIPRobot.Text /*= "169.254.162.201"*/ = GetIPAddress();
             tbxPortRobot.Text = "8686";
-            tbxIPBS.Text /*= GetIPAddress()*/ = "192.168.165.10";
+            tbxIPBS.Text = GetIPAddress() /*= "192.168.165.10"*/;
             tbxPortBS.Text = "8686";
         }
 
         private void btnOpenServer_Click(object sender, EventArgs e)
         {
-            if ((!string.IsNullOrWhiteSpace(tbxIPBS.Text)) && (!string.IsNullOrWhiteSpace(tbxPortBS.Text)))
+            if ((!string.IsNullOrWhiteSpace(tbxIPRobot.Text)) && (!string.IsNullOrWhiteSpace(tbxPortRobot.Text)))
                 new Thread(obj => SetupServer(tbxPortRobot.Text)).Start();
         }
 
@@ -68,6 +68,20 @@ namespace Client
             }
         }
 
+        string socketToIP(Socket socket)
+        {
+            return (socket.RemoteEndPoint.ToString().Split(':'))[0];
+        }
+
+        string socketToName(Socket socket)
+        {
+            dynamic[] arr = { "BaseStation", "RefereeBox", "Robot1", "Robot2", "Robot3" };
+            for (int i = 0; i < arr.Length; i++)
+                if ((_socketDict.ContainsKey(arr[i])) && (_socketDict[arr[i]].RemoteEndPoint == socket.RemoteEndPoint))
+                    return arr[i];
+            return socket.RemoteEndPoint.ToString();
+        }
+
         void SetupServer(dynamic port)
         {
             try
@@ -75,7 +89,7 @@ namespace Client
                 if ((!string.IsNullOrWhiteSpace(tbxIPRobot.Text)) && (!string.IsNullOrWhiteSpace(tbxPortRobot.Text)))
                 {
                     addCommand("# Setting up server...");
-                    addCommand("# IP this device : " + tbxIPBS.Text + " (" + this.Text + ")");
+                    addCommand("# Open for IP : " + tbxIPRobot.Text + " (" + this.Text + ") \t Port : " + port);
                     //hc.SetText(this, lblConnectionBS, "Open");
                     _serverSocket.Bind(new IPEndPoint(IPAddress.Any, this.port = int.Parse(port)));
                     _serverSocket.Listen(1);
@@ -110,12 +124,6 @@ namespace Client
             }
         }
 
-        string socketToIP(Socket socket)
-        {
-            var _temp = socket.RemoteEndPoint.ToString().Split(':');
-            return _temp[0];
-        }
-
         private void ReceiveCallBack(IAsyncResult AR)
         {
             try
@@ -126,7 +134,7 @@ namespace Client
                 Array.Copy(_buffer, dataBuf, received);
                 string text = Encoding.ASCII.GetString(dataBuf).Trim();
                 var _data = text.Split('|');
-                addCommand("> " + socketToIP(socket) + " : " + _data[0]);
+                addCommand("> " + socketToName(socket) + " : " + _data[0]);
                 //new Thread(obj => addCommand("> " + socketToIP(socket) + " : " + _data[0])).Start();
 
                 string respone = ResponeCallback(_data[0], socket);
@@ -150,7 +158,7 @@ namespace Client
         {
             try
             {
-                addCommand("@ " + socketToIP(_dstSocket) + " : " + txtMessage);
+                addCommand("@ " + socketToName(_dstSocket) + " : " + txtMessage);
                 byte[] buffer = Encoding.ASCII.GetBytes(txtMessage);
                 _dstSocket.Send(buffer);
                 _dstSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _dstSocket);
@@ -349,10 +357,16 @@ namespace Client
                         break;
                 }
             }
-            else    // for all socket         
+            else
             {
+                // If socket is Robot socket   
                 switch (text)
                 {
+                    /// INFORMATION ///
+                    case "B": //Get the ball
+                        respone = "Ball on " + socketToName(socket);
+                        goto broadcast;
+
                     /// OTHERS ///
                     case "get_time": //TIME NOW
                         respone = DateTime.Now.ToLongTimeString();
@@ -366,11 +380,11 @@ namespace Client
 
             broadcast:
             sendByHostList("Robot1,Robot2,Robot3,BaseStation", respone);
-            return respone;
+            return string.Empty;
 
             multicast:
             sendByHostList("Robot2,Robot3,BaseStation", respone);
-            return respone;
+            return string.Empty;
 
             end:
             return respone;
@@ -380,16 +394,15 @@ namespace Client
 
         void reqConnect(string ipDst, dynamic port, string keyName)
         {
-            addCommand("# Connecting to " + ipDst + " (" + keyName + ")");
+            addCommand("# Connecting to " + ipDst + " (" + keyName + ") \t Port : " + port);
             try
             {
                 attempts++;
                 _toServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 //_toServerSocket.Connect(IPAddress.Parse(ipDst = "169.254.162.201"), 100);
                 _toServerSocket.Connect(IPAddress.Parse(ipDst), int.Parse(port));
-                hc.SetText(this, tbxStatus, string.Empty);
                 if (_toServerSocket.Connected)
-                    addCommand("# Success Connecting to: " + ipDst + " (" + keyName + ")");
+                    addCommand("# Success Connecting to: " + ipDst + " (" + keyName + ") \t Port : " + port);
                 //hc.SetText(this, connection, "Connected");
                 SendCallBack(_toServerSocket, this.Text);
                 _socketDict.Add(keyName, _toServerSocket);
@@ -400,7 +413,7 @@ namespace Client
             {
                 hc.SetText(this, tbxStatus, string.Empty);
                 addCommand("# IP This Device  : " + myIP + " (" + this.Text + ")");
-                addCommand("# IP Destination  : " + ipDst + " (" + keyName + ")");
+                addCommand("# IP Destination  : " + ipDst + " (" + keyName + ") \t Port : " + port);
                 addCommand("# Connection attempts: " + attempts.ToString());
                 //hc.SetText(this, connection, "Disconnected");
             }
