@@ -44,7 +44,7 @@
             this.lblUseAs.Location = new System.Drawing.Point(145, 21);
             this.lblUseAs.Name = "lblUseAs";
             this.lblUseAs.Size = new System.Drawing.Size(51, 13);
-            this.lblUseAs.TabIndex = 0;
+            this.lblUseAs.TabIndex = 3;
             this.lblUseAs.Text = "Use As:";
             // 
             // cmbxUseAs
@@ -53,7 +53,7 @@
             this.cmbxUseAs.Location = new System.Drawing.Point(148, 51);
             this.cmbxUseAs.Name = "cmbxUseAs";
             this.cmbxUseAs.Size = new System.Drawing.Size(125, 21);
-            this.cmbxUseAs.TabIndex = 1;
+            this.cmbxUseAs.TabIndex = 0;
             this.cmbxUseAs.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cmbxUseAs_KeyDown);
             // 
             // pbxRobot
@@ -71,7 +71,7 @@
             this.btnOk.Location = new System.Drawing.Point(223, 98);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(50, 23);
-            this.btnOk.TabIndex = 3;
+            this.btnOk.TabIndex = 1;
             this.btnOk.Text = "OK";
             this.btnOk.UseVisualStyleBackColor = true;
             this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
@@ -81,7 +81,7 @@
             this.btnExit.Location = new System.Drawing.Point(148, 98);
             this.btnExit.Name = "btnExit";
             this.btnExit.Size = new System.Drawing.Size(50, 23);
-            this.btnExit.TabIndex = 4;
+            this.btnExit.TabIndex = 2;
             this.btnExit.Text = "Exit";
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);

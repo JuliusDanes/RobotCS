@@ -81,7 +81,7 @@
             this.tbxIPBS.Location = new System.Drawing.Point(37, 19);
             this.tbxIPBS.Name = "tbxIPBS";
             this.tbxIPBS.Size = new System.Drawing.Size(150, 20);
-            this.tbxIPBS.TabIndex = 0;
+            this.tbxIPBS.TabIndex = 4;
             this.tbxIPBS.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Connection_KeyEnter);
             // 
             // lblPortBS
@@ -98,7 +98,7 @@
             this.tbxPortBS.Location = new System.Drawing.Point(37, 45);
             this.tbxPortBS.Name = "tbxPortBS";
             this.tbxPortBS.Size = new System.Drawing.Size(50, 20);
-            this.tbxPortBS.TabIndex = 1;
+            this.tbxPortBS.TabIndex = 5;
             this.tbxPortBS.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Connection_KeyEnter);
             // 
             // lblIPBS
@@ -115,7 +115,7 @@
             this.btnConnectBS.Location = new System.Drawing.Point(202, 17);
             this.btnConnectBS.Name = "btnConnectBS";
             this.btnConnectBS.Size = new System.Drawing.Size(75, 23);
-            this.btnConnectBS.TabIndex = 3;
+            this.btnConnectBS.TabIndex = 6;
             this.btnConnectBS.Text = "Connect";
             this.btnConnectBS.UseVisualStyleBackColor = true;
             this.btnConnectBS.Click += new System.EventHandler(this.btnConnectBS_Click);
@@ -125,7 +125,7 @@
             this.btnDisconnectBS.Location = new System.Drawing.Point(202, 47);
             this.btnDisconnectBS.Name = "btnDisconnectBS";
             this.btnDisconnectBS.Size = new System.Drawing.Size(75, 23);
-            this.btnDisconnectBS.TabIndex = 4;
+            this.btnDisconnectBS.TabIndex = 7;
             this.btnDisconnectBS.Text = "Disconnect";
             this.btnDisconnectBS.UseVisualStyleBackColor = true;
             // 
@@ -147,7 +147,7 @@
             this.tbxX.Location = new System.Drawing.Point(37, 19);
             this.tbxX.Name = "tbxX";
             this.tbxX.Size = new System.Drawing.Size(50, 20);
-            this.tbxX.TabIndex = 4;
+            this.tbxX.TabIndex = 8;
             this.tbxX.Text = "0";
             this.tbxX.TextChanged += new System.EventHandler(this.tbxXY_TextChanged);
             this.tbxX.KeyDown += new System.Windows.Forms.KeyEventHandler(this.changeCounter);
@@ -175,7 +175,7 @@
             this.tbxY.Location = new System.Drawing.Point(37, 43);
             this.tbxY.Name = "tbxY";
             this.tbxY.Size = new System.Drawing.Size(50, 20);
-            this.tbxY.TabIndex = 5;
+            this.tbxY.TabIndex = 9;
             this.tbxY.Text = "0";
             this.tbxY.TextChanged += new System.EventHandler(this.tbxXY_TextChanged);
             this.tbxY.KeyDown += new System.Windows.Forms.KeyEventHandler(this.changeCounter);
@@ -185,7 +185,7 @@
             this.btnSend.Location = new System.Drawing.Point(697, 64);
             this.btnSend.Name = "btnSend";
             this.btnSend.Size = new System.Drawing.Size(75, 23);
-            this.btnSend.TabIndex = 12;
+            this.btnSend.TabIndex = 13;
             this.btnSend.Text = "Send";
             this.btnSend.UseVisualStyleBackColor = true;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
@@ -197,7 +197,7 @@
             this.tbxStatus.Location = new System.Drawing.Point(322, 106);
             this.tbxStatus.Name = "tbxStatus";
             this.tbxStatus.Size = new System.Drawing.Size(450, 140);
-            this.tbxStatus.TabIndex = 15;
+            this.tbxStatus.TabIndex = 14;
             this.tbxStatus.Text = "";
             this.tbxStatus.TextChanged += new System.EventHandler(this.tbxStatus_TextChanged);
             // 
@@ -255,7 +255,7 @@
             this.btnOpenServer.Location = new System.Drawing.Point(202, 17);
             this.btnOpenServer.Name = "btnOpenServer";
             this.btnOpenServer.Size = new System.Drawing.Size(75, 23);
-            this.btnOpenServer.TabIndex = 3;
+            this.btnOpenServer.TabIndex = 2;
             this.btnOpenServer.Text = "Open";
             this.btnOpenServer.UseVisualStyleBackColor = true;
             this.btnOpenServer.Click += new System.EventHandler(this.btnOpenServer_Click);
@@ -265,7 +265,7 @@
             this.btnCloseServer.Location = new System.Drawing.Point(202, 47);
             this.btnCloseServer.Name = "btnCloseServer";
             this.btnCloseServer.Size = new System.Drawing.Size(75, 23);
-            this.btnCloseServer.TabIndex = 4;
+            this.btnCloseServer.TabIndex = 3;
             this.btnCloseServer.Text = "Close";
             this.btnCloseServer.UseVisualStyleBackColor = true;
             this.btnCloseServer.Click += new System.EventHandler(this.btnCloseServer_Click);
@@ -276,7 +276,7 @@
             this.tbxMessage.Location = new System.Drawing.Point(322, 8);
             this.tbxMessage.Name = "tbxMessage";
             this.tbxMessage.Size = new System.Drawing.Size(450, 50);
-            this.tbxMessage.TabIndex = 11;
+            this.tbxMessage.TabIndex = 12;
             this.tbxMessage.Text = "";
             this.tbxMessage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbxMessage_KeyDown);
             // 
@@ -298,7 +298,7 @@
             this.tbxGotoX.Location = new System.Drawing.Point(37, 19);
             this.tbxGotoX.Name = "tbxGotoX";
             this.tbxGotoX.Size = new System.Drawing.Size(50, 20);
-            this.tbxGotoX.TabIndex = 4;
+            this.tbxGotoX.TabIndex = 10;
             this.tbxGotoX.Text = "0";
             this.tbxGotoX.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbxGoto_KeyDown);
             // 
@@ -325,7 +325,7 @@
             this.tbxGotoY.Location = new System.Drawing.Point(37, 43);
             this.tbxGotoY.Name = "tbxGotoY";
             this.tbxGotoY.Size = new System.Drawing.Size(50, 20);
-            this.tbxGotoY.TabIndex = 5;
+            this.tbxGotoY.TabIndex = 11;
             this.tbxGotoY.Text = "0";
             this.tbxGotoY.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbxGoto_KeyDown);
             // 
