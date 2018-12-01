@@ -1,0 +1,16 @@
+E:\KRSBI\Project\RobotCS\RobotCS\bin\Debug\RobotCS.exe.config
+E:\KRSBI\Project\RobotCS\RobotCS\bin\Debug\RobotCS.exe
+E:\KRSBI\Project\RobotCS\RobotCS\bin\Debug\RobotCS.pdb
+E:\KRSBI\Project\RobotCS\RobotCS\bin\Debug\Bunifu_UI_v1.5.3.dll
+E:\KRSBI\Project\RobotCS\RobotCS\bin\Debug\MaterialSkin.dll
+E:\KRSBI\Project\RobotCS\RobotCS\bin\Debug\MetroFramework.dll
+E:\KRSBI\Project\RobotCS\RobotCS\bin\Debug\MetroFramework.Fonts.dll
+E:\KRSBI\Project\RobotCS\RobotCS\obj\Debug\RobotCS.csprojAssemblyReference.cache
+E:\KRSBI\Project\RobotCS\RobotCS\obj\Debug\RobotCS.Properties.Resources.resources
+E:\KRSBI\Project\RobotCS\RobotCS\obj\Debug\RobotCS.csproj.GenerateResource.cache
+E:\KRSBI\Project\RobotCS\RobotCS\obj\Debug\RobotCS.csproj.CoreCompileInputs.cache
+E:\KRSBI\Project\RobotCS\RobotCS\obj\Debug\RobotCS.csproj.CopyComplete
+E:\KRSBI\Project\RobotCS\RobotCS\obj\Debug\RobotCS.exe
+E:\KRSBI\Project\RobotCS\RobotCS\obj\Debug\RobotCS.pdb
+E:\KRSBI\Project\RobotCS\RobotCS\obj\Debug\RobotCS.UseAs.resources
+E:\KRSBI\Project\RobotCS\RobotCS\obj\Debug\RobotCS.RobotCS.resources
