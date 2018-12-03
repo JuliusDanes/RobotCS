@@ -113,21 +113,24 @@ namespace RobotCS
         private void tbxGoto_KeyDown(object sender, KeyEventArgs e)
         {
             changeCounter(sender, e);
-            if ((e.KeyCode == Keys.Enter) && (!string.IsNullOrWhiteSpace(tbxGotoX.Text)) && (!string.IsNullOrWhiteSpace(tbxGotoY.Text)))
-                new Thread(obj => GotoLoc(this.Text, tbxEncXR, tbxEncYR, int.Parse(tbxGotoX.Text), int.Parse(tbxGotoY.Text), 20, 20)).Start();
+            if ((e.KeyCode == Keys.Enter) && (!string.IsNullOrWhiteSpace(tbxGotoX.Text)) && (!string.IsNullOrWhiteSpace(tbxGotoY.Text)) && (!string.IsNullOrWhiteSpace(tbxGotoAngleR.Text)))
+                new Thread(obj => GotoLoc(this.Text, tbxEncXR, tbxEncYR, tbxEncAngleR, int.Parse(tbxGotoX.Text), int.Parse(tbxGotoY.Text), int.Parse(tbxGotoAngleR.Text), 20, 20, 1)).Start();
         }
 
-        void GotoLoc(string Robot, dynamic encXRobot, dynamic encYRobot, int endX, int endY, int shiftX, int shiftY)
+        void GotoLoc(string Robot, dynamic encXRobot, dynamic encYRobot, dynamic angleRobot, int endX, int endY, int endAngle, int shiftX, int shiftY, int shiftAngle)
         {
             try
             {
-                int startX = int.Parse(encXRobot.Text), startY = int.Parse(encYRobot.Text);
+                int startX = int.Parse(encXRobot.Text), startY = int.Parse(encYRobot.Text), startAngle = int.Parse(angleRobot.Text);
                 if (startX > endX)
                     shiftX *= -1;
                 if (startY > endY)
                     shiftY *= -1;
-                bool[] chk = { true, true };
-                while (chk[0] |= chk[1])
+                if (startAngle > endAngle)
+                    shiftAngle *= -1;
+                addCommand("# " + Robot + " : Goto >> " + ("X:" + endX + " Y:" + endY + " Ɵ:" + endAngle + "°"));
+                bool[] chk = { true, true, true };
+                while (chk[0] |= chk[1] |= chk[2])
                 {
                     if (startX != endX)
                     {
@@ -145,9 +148,18 @@ namespace RobotCS
                     }
                     else
                         chk[1] = false;     // Done
+                    if (startAngle != endAngle)
+                    {
+                        if (Math.Abs(endAngle - startAngle) < Math.Abs(shiftAngle))     // Shift not corresponding
+                            shiftAngle = (endAngle - startAngle);
+                        startAngle += shiftAngle;   // On process
+                    }
+                    else
+                        chk[2] = false;     // Done
 
                     hc.SetText(this, tbxEncXR, startX.ToString());
                     hc.SetText(this, tbxEncYR, startY.ToString());
+                    hc.SetText(this, tbxEncAngleR, startAngle.ToString());
                     Thread.Sleep(100);    // time per limit
                 }
             }
@@ -157,7 +169,7 @@ namespace RobotCS
 
         private void tbxXY_TextChanged(object sender, EventArgs e)
         {
-            string dtEncoder = "X:" + tbxEncXR.Text + ",Y:" + tbxEncYR.Text;
+            string dtEncoder = tbxEncXR.Text + "," + tbxEncYR.Text + "," + tbxEncAngleR.Text;
             if ((!string.IsNullOrWhiteSpace(tbxEncXR.Text)) && (!string.IsNullOrWhiteSpace(tbxEncYR.Text)) && (!string.IsNullOrWhiteSpace(tbxEncAngleR.Text)) && (!string.IsNullOrWhiteSpace(tbxStatus.Text)))
                 if (_socketDict.ContainsKey("BaseStation"))
                     new Thread(obj => SendCallBack(_socketDict["BaseStation"], dtEncoder)).Start();
@@ -361,8 +373,6 @@ namespace RobotCS
                 Array.Copy(_buffer, dataBuf, received);
                 string text = Encoding.ASCII.GetString(dataBuf).Trim();
                 var _data = text.Split('|');
-                addCommand("> " + socketToName(socket) + " : " + _data[0]);
-                //new Thread(obj => addCommand("> " + socketToIP(socket) + " : " + _data[0])).Start();
 
                 string respone = ResponeCallback(_data[0], socket);
                 if (!string.IsNullOrEmpty(respone))
@@ -385,7 +395,13 @@ namespace RobotCS
         {
             try
             {
-                addCommand("@ " + socketToName(_dstSocket) + " : " + txtMessage);
+                if (Regex.IsMatch(txtMessage, "[-]{0,1}[0-9]{1,4},[-]{0,1}[0-9]{1,4},[-]{0,1}[0-9]{1,4}"))
+                {
+                    var pos = txtMessage.Split(',');
+                    addCommand("@ " + socketToName(_dstSocket) + " : " + ("X:" + pos[0] + " Y:" + pos[1] + " Ɵ:" + pos[2] + "°"));
+                }
+                else
+                    addCommand("@ " + socketToName(_dstSocket) + " : " + txtMessage);
                 byte[] buffer = Encoding.ASCII.GetBytes(txtMessage);
                 _dstSocket.Send(buffer);
                 _dstSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _dstSocket);
@@ -423,26 +439,22 @@ namespace RobotCS
 
         string ResponeCallback(dynamic text, Socket socket)
         {
-            string respone = string.Empty;
-            if (Regex.IsMatch(text, @"X:[-]{0,1}[0-9]{1,4},Y:[-]{0,1}[0-9]{1,4}"))
+            string respone = string.Empty; if (Regex.IsMatch(text, "[-]{0,1}[0-9]{1,4},[-]{0,1}[0-9]{1,4},[-]{0,1}[0-9]{1,4}"))
             {
                 // If message is data X & Y from encoder
                 /// Scale is 1 : 20 
-                int[] _posXY = new int[2];
+                string objName = null;
                 var posXY = text.Split(',');
-                if (posXY.Length == 2) // If data receive only one X & Y
+                if (posXY.Length > 3) // If data receive multi value X & Y (error bug problem)
                 {
-                    _posXY[0] = int.Parse(posXY[0].Split(':')[1]);
-                    _posXY[1] = int.Parse(posXY[1].Split(':')[1]);
+                    posXY[0] = posXY[posXY.Length - 3];
+                    posXY[1] = posXY[posXY.Length - 2];
+                    posXY[2] = posXY[posXY.Length - 1];
                 }
-                else // If data receive multi X & Y (error problems)
-                {
-                    _posXY[0] = int.Parse(posXY[posXY.Length - 2].Split(':')[2]);
-                    _posXY[1] = int.Parse(posXY[posXY.Length - 1].Split(':')[1]);
-                }
-
-                hc.SetText(this, tbxEncXR, _posXY[0].ToString());          // On encoder tbx
-                hc.SetText(this, tbxEncYR, _posXY[1].ToString());
+                hc.SetText(this, tbxEncXR, posXY[0].ToString());          // On encoder tbx
+                hc.SetText(this, tbxEncYR, posXY[1].ToString());
+                hc.SetText(this, tbxEncAngleR, posXY[2].ToString());
+                text = "X:" + posXY[0] + " Y:" + posXY[1] + " Ɵ:" + posXY[2] + "°";
             }
             else if (Regex.IsMatch(text, @"BaseStation"))
             {
@@ -490,6 +502,7 @@ namespace RobotCS
             return string.Empty;
 
             end:
+            addCommand("> " + socketToName(socket) + " : " + text);
             return respone;
         }
 
