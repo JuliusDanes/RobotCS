@@ -128,7 +128,7 @@ namespace RobotCS
                     shiftY *= -1;
                 if (startAngle > endAngle)
                     shiftAngle *= -1;
-                addCommand("# " + Robot + " : Goto >> " + ("X:" + endX + " Y:" + endY + " Ɵ:" + endAngle + "°"));
+                addCommand("# " + Robot + " : Goto >> " + ("X:" + endX + " Y:" + endY + " ∠:" + endAngle + "°"));
                 bool[] chk = { true, true, true };
                 while (chk[0] |= chk[1] |= chk[2])
                 {
@@ -398,7 +398,7 @@ namespace RobotCS
                 if (Regex.IsMatch(txtMessage, "[-]{0,1}[0-9]{1,4},[-]{0,1}[0-9]{1,4},[-]{0,1}[0-9]{1,4}"))
                 {
                     var pos = txtMessage.Split(',');
-                    addCommand("@ " + socketToName(_dstSocket) + " : " + ("X:" + pos[0] + " Y:" + pos[1] + " Ɵ:" + pos[2] + "°"));
+                    addCommand("@ " + socketToName(_dstSocket) + " : " + ("X:" + pos[0] + " Y:" + pos[1] + " ∠:" + pos[2] + "°"));
                 }
                 else
                     addCommand("@ " + socketToName(_dstSocket) + " : " + txtMessage);
@@ -454,7 +454,7 @@ namespace RobotCS
                 hc.SetText(this, tbxEncXR, posXY[0].ToString());          // On encoder tbx
                 hc.SetText(this, tbxEncYR, posXY[1].ToString());
                 hc.SetText(this, tbxEncAngleR, posXY[2].ToString());
-                text = "X:" + posXY[0] + " Y:" + posXY[1] + " Ɵ:" + posXY[2] + "°";
+                text = "X:" + posXY[0] + " Y:" + posXY[1] + " ∠:" + posXY[2] + "°";
             }
             else if (Regex.IsMatch(text, @"BaseStation"))
             {

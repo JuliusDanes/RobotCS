@@ -70,7 +70,7 @@
             this.lblEncDegR.Enabled = false;
             this.lblEncDegR.Font = new System.Drawing.Font("Arial", 8F, System.Drawing.FontStyle.Bold);
             this.lblEncDegR.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.lblEncDegR.Location = new System.Drawing.Point(194, 54);
+            this.lblEncDegR.Location = new System.Drawing.Point(196, 54);
             this.lblEncDegR.Name = "lblEncDegR";
             this.lblEncDegR.Size = new System.Drawing.Size(10, 20);
             this.lblEncDegR.TabIndex = 186;
@@ -177,13 +177,13 @@
             this.tbxEncAngleR.LineIdleColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(71)))), ((int)(((byte)(79)))));
             this.tbxEncAngleR.LineMouseHoverColor = System.Drawing.Color.Gold;
             this.tbxEncAngleR.LineThickness = 1;
-            this.tbxEncAngleR.Location = new System.Drawing.Point(166, 53);
+            this.tbxEncAngleR.Location = new System.Drawing.Point(165, 53);
             this.tbxEncAngleR.Margin = new System.Windows.Forms.Padding(4);
             this.tbxEncAngleR.Name = "tbxEncAngleR";
             this.tbxEncAngleR.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.tbxEncAngleR.Size = new System.Drawing.Size(35, 25);
             this.tbxEncAngleR.TabIndex = 197;
-            this.tbxEncAngleR.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
+            this.tbxEncAngleR.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.tbxEncAngleR.OnValueChanged += new System.EventHandler(this.tbxXY_TextChanged);
             this.tbxEncAngleR.KeyDown += new System.Windows.Forms.KeyEventHandler(this.changeCounter);
             // 
@@ -535,13 +535,13 @@
             this.tbxGotoAngleR.LineIdleColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(71)))), ((int)(((byte)(79)))));
             this.tbxGotoAngleR.LineMouseHoverColor = System.Drawing.Color.Gold;
             this.tbxGotoAngleR.LineThickness = 1;
-            this.tbxGotoAngleR.Location = new System.Drawing.Point(166, 74);
+            this.tbxGotoAngleR.Location = new System.Drawing.Point(165, 74);
             this.tbxGotoAngleR.Margin = new System.Windows.Forms.Padding(4);
             this.tbxGotoAngleR.Name = "tbxGotoAngleR";
             this.tbxGotoAngleR.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.tbxGotoAngleR.Size = new System.Drawing.Size(35, 25);
             this.tbxGotoAngleR.TabIndex = 212;
-            this.tbxGotoAngleR.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
+            this.tbxGotoAngleR.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.tbxGotoAngleR.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbxGoto_KeyDown);
             // 
             // lblGotoDegR
@@ -550,7 +550,7 @@
             this.lblGotoDegR.Enabled = false;
             this.lblGotoDegR.Font = new System.Drawing.Font("Arial", 8F, System.Drawing.FontStyle.Bold);
             this.lblGotoDegR.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.lblGotoDegR.Location = new System.Drawing.Point(194, 75);
+            this.lblGotoDegR.Location = new System.Drawing.Point(196, 75);
             this.lblGotoDegR.Name = "lblGotoDegR";
             this.lblGotoDegR.Size = new System.Drawing.Size(10, 20);
             this.lblGotoDegR.TabIndex = 211;
