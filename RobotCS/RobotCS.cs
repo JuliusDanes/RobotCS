@@ -186,7 +186,8 @@ namespace RobotCS
         static Socket _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         static Socket _toServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         Dictionary<string, Socket> _socketDict = new Dictionary<string, Socket>();
-        List<string> _chkRobotCollect = new List<string>();
+        Dictionary<dynamic, bool> chkReconnect = new Dictionary<dynamic, bool>();
+        List<dynamic> _chkRobotCollect = new List<dynamic>(), notConnectionCollect = new List<dynamic>();
         internal int port, attempts = 0;
         internal string useAs, myIP, chkRobotCollect = string.Empty;
         System.Threading.Timer chkConnection;
@@ -208,22 +209,32 @@ namespace RobotCS
             try
             {
                 dynamic[,] arr = { { lblRobot, lblConnectionR }, { lblBaseStation, lblConnectionBS } };
-                var obj = string.Empty;
-                if ((lblConnectionR.Text.Equals("Open")) && (!_serverSocket.IsBound))       // Check for Server Connection
-                    obj = lblConnectionR.Text;
-                for (int i = 0; i < _socketDict.Count; i++)                                 // Check for Client Connection
-                    if (!_socketDict.ElementAtOrDefault(i).Value.Connected)
-                        obj = _socketDict.ElementAtOrDefault(i).Key;
-                for (int j = 0; j < arr.GetLength(0); j++)
-                    if (arr[j, 0].Text == obj)
-                        if (obj == lblRobot.Text)
-                            hc.SetText(this, arr[j, 1], "Close");
-                        else
-                            hc.SetText(this, arr[j, 1], "Disconnected");
+                for (int i = 0; i < arr.GetLength(0); i++)      // Check for Server and Client Connection
+                    if ((((_socketDict.ContainsKey(arr[i, 0].Text)) && (!_socketDict[arr[i, 0].Text].Connected)) ^ ((arr[i, 1].Text.Equals("Open")) && (!_serverSocket.IsBound))) && (!notConnectionCollect.Contains(arr[i, 1])))
+                    {
+                        notConnectionCollect.Add(arr[i, 1]);
+                        chkReconnect.Add(arr[i, 1].Name, true);
+                    }
+                    else if ((((_socketDict.ContainsKey(arr[i, 0].Text)) && (_socketDict[arr[i, 0].Text].Connected)) ^ ((arr[i, 1].Text.Equals("Open")) && (_serverSocket.IsBound))) && (notConnectionCollect.Contains(arr[i, 1])))
+                        notConnectionCollect.Remove(arr[i, 1]);
+                foreach (dynamic j in notConnectionCollect)          // Auto Reconnecting
+                    if (chkReconnect[j.Name] == true)
+                    {
+                        if (j.Text == "Connected")
+                            hc.SetText(this, j, "Disconnected");
+                        else if (j.Text == "Open")
+                            hc.SetText(this, j, "Close");
+                        if (j.Text == "Disconnected") {
+                            grpBaseStation_Click(j, EventArgs.Empty);
+                            chkReconnect[j.Name] = false; }
+                        else if (j.Text == "Open")
+                            grpRobot_Click(grpRobot, EventArgs.Empty);
+                    }
             }
-            catch (Exception e)
+            catch (Exception)
             { }
         }
+
         private void lblConnection_TextChanged(object sender, EventArgs e)
         {
             var obj = ((dynamic)sender).Name;
@@ -310,6 +321,8 @@ namespace RobotCS
                 _socketDict.Add(keyName, _toServerSocket);
                 _toServerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _toServerSocket);
                 //new Thread(obj => _toServerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), _toServerSocket)).Start();
+                if (chkReconnect.ContainsKey(connection.Name))
+                    chkReconnect.Remove(connection.Name);
             }
             catch (SocketException)
             {
@@ -318,6 +331,8 @@ namespace RobotCS
                 addCommand("# IP Destination  : " + ipDst + " (" + keyName + ") \t Port : " + port);
                 addCommand("# Connection attempts: " + attempts.ToString());
                 hc.SetText(this, connection, "Disconnected");
+                if (chkReconnect.ContainsKey(connection.Name))
+                    chkReconnect[connection.Name] = true;
             }
         }
 
