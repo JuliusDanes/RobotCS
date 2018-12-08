@@ -104,6 +104,8 @@ namespace RobotCS
 
         //////////////////////////////////////////////////////////////      TRACK LOCACTION       //////////////////////////////////////////////////////////////
         ///
+        Dictionary<string, Thread> gotoDict = new Dictionary<string, Thread>();
+
         void changeCounter(object sender, KeyEventArgs e)
         {
             var obj = ((dynamic)sender).Name;
@@ -131,7 +133,7 @@ namespace RobotCS
         {
             changeCounter(sender, e);
             if ((e.KeyCode == Keys.Enter) && (!string.IsNullOrWhiteSpace(tbxGotoX.Text)) && (!string.IsNullOrWhiteSpace(tbxGotoY.Text)) && (!string.IsNullOrWhiteSpace(tbxGotoAngleR.Text)))
-                new Thread(obj => GotoLoc(this.Text, tbxEncXR, tbxEncYR, tbxEncAngleR, int.Parse(tbxGotoX.Text), int.Parse(tbxGotoY.Text), int.Parse(tbxGotoAngleR.Text), 20, 20, 1)).Start();
+                threadGoto(this.Text, new Thread(obj => GotoLoc(this.Text, tbxEncXR, tbxEncYR, tbxEncAngleR, int.Parse(tbxGotoX.Text), int.Parse(tbxGotoY.Text), int.Parse(tbxGotoAngleR.Text), 20, 20, 1)));
         }
 
         void GotoLoc(string Robot, dynamic encXRobot, dynamic encYRobot, dynamic angleRobot, int endX, int endY, int endAngle, int shiftX, int shiftY, int shiftAngle)
@@ -196,6 +198,15 @@ namespace RobotCS
             }
             catch (Exception e)
             { }
+        }
+
+        void threadGoto(string keyName, Thread th)
+        {
+            if (gotoDict.ContainsKey(keyName)) {
+                gotoDict[keyName].Abort();
+                gotoDict.Remove(keyName); }
+            gotoDict.Add(keyName, th);
+            gotoDict[keyName].Start();
         }
 
         private void tbxXY_TextChanged(object sender, EventArgs e)
