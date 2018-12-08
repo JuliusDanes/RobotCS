@@ -134,6 +134,7 @@
             this.lblConnectionBS.Text = "Disconnected";
             this.lblConnectionBS.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.lblConnectionBS.TextChanged += new System.EventHandler(this.lblConnection_TextChanged);
+            this.lblConnectionBS.Click += new System.EventHandler(this.Disconnect_byDistinct);
             // 
             // lblBaseStation
             // 
@@ -411,6 +412,7 @@
             this.lblConnectionR.Text = "Close";
             this.lblConnectionR.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.lblConnectionR.TextChanged += new System.EventHandler(this.lblConnection_TextChanged);
+            this.lblConnectionR.Click += new System.EventHandler(this.Disconnect_byDistinct);
             // 
             // lblGotoCommaR
             // 

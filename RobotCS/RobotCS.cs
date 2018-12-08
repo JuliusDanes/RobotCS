@@ -94,7 +94,7 @@ namespace RobotCS
         void changeCounter(object sender, KeyEventArgs e)
         {
             var obj = ((dynamic)sender).Name;
-            dynamic[,] arr = { { tbxEncXR, tbxEncYR }, { tbxGotoX, tbxGotoY }, { tbxEncAngleR, tbxEncAngleR }, { tbxGotoAngleR, tbxGotoAngleR } };
+            dynamic[,] arr = { { tbxEncXR, tbxEncYR, tbxEncAngleR }, { tbxGotoX, tbxGotoY, tbxGotoAngleR } };
             int n = 0;
             for (int i = 0; i < arr.GetLength(0); i++)
                 for (int j = 0; j < arr.GetLength(1); j++)
@@ -108,6 +108,10 @@ namespace RobotCS
                 arr[n, 1].Text = (int.Parse(arr[n, 1].Text) - 1).ToString();
             else if (e.KeyCode == Keys.Down)
                 arr[n, 1].Text = (int.Parse(arr[n, 1].Text) + 1).ToString();
+            else if (e.KeyCode == Keys.PageUp)
+                arr[n, 2].Text = (int.Parse(arr[n, 2].Text) + 1).ToString();
+            else if (e.KeyCode == Keys.PageDown)
+                arr[n, 2].Text = (int.Parse(arr[n, 2].Text) - 1).ToString();
         }
 
         private void tbxGoto_KeyDown(object sender, KeyEventArgs e)
@@ -224,10 +228,10 @@ namespace RobotCS
                             hc.SetText(this, j, "Disconnected");
                         else if (j.Text == "Open")
                             hc.SetText(this, j, "Close");
-                        if (j.Text == "Disconnected") {
+                        if (j.Text == "Disconnected"){
                             grpBaseStation_Click(j, EventArgs.Empty);
                             chkReconnect[j.Name] = false; }
-                        else if (j.Text == "Open")
+                        else if (j.Text == "Close")
                             grpRobot_Click(grpRobot, EventArgs.Empty);
                     }
             }
@@ -342,6 +346,7 @@ namespace RobotCS
             {
                 if ((!string.IsNullOrWhiteSpace(tbxIPR.Text)) && (!string.IsNullOrWhiteSpace(tbxPortR.Text)))
                 {
+                    _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     addCommand("# Setting up server...");
                     addCommand("# Open for IP : " + tbxIPR.Text + " (" + this.Text + ") \t Port : " + port);
                     hc.SetText(this, lblConnectionR, "Open");
@@ -353,7 +358,8 @@ namespace RobotCS
             catch (Exception e)
             {
                 addCommand("# FAILED to open server connection \n\n" + e);
-                hc.SetText(this, lblConnectionR, "Close");
+                _serverSocket.Dispose();
+                //hc.SetText(this, lblConnectionR, "Close");
             }
         }
 
@@ -374,7 +380,7 @@ namespace RobotCS
             }
             catch (Exception e)
             {
-                addCommand("# FAILED to connected \n\n" + e);
+                addCommand("# FAILED to connect \n\n" + e);
             }
         }
 
@@ -412,8 +418,8 @@ namespace RobotCS
             {
                 if (Regex.IsMatch(txtMessage, "[-]{0,1}[0-9]{1,4},[-]{0,1}[0-9]{1,4},[-]{0,1}[0-9]{1,4}"))
                 {
-                    var pos = txtMessage.Split(',');
-                    addCommand("@ " + socketToName(_dstSocket) + " : " + ("X:" + pos[0] + " Y:" + pos[1] + " ∠:" + pos[2] + "°"));
+                    //var pos = txtMessage.Split(',');
+                    //addCommand("@ " + socketToName(_dstSocket) + " : " + ("X:" + pos[0] + " Y:" + pos[1] + " ∠:" + pos[2] + "°"));
                 }
                 else
                     addCommand("@ " + socketToName(_dstSocket) + " : " + txtMessage);
@@ -458,7 +464,6 @@ namespace RobotCS
             {
                 // If message is data X & Y from encoder
                 /// Scale is 1 : 20 
-                string objName = null;
                 var posXY = text.Split(',');
                 if (posXY.Length > 3) // If data receive multi value X & Y (error bug problem)
                 {
@@ -466,10 +471,11 @@ namespace RobotCS
                     posXY[1] = posXY[posXY.Length - 2];
                     posXY[2] = posXY[posXY.Length - 1];
                 }
+                text = string.Empty;
                 hc.SetText(this, tbxEncXR, posXY[0].ToString());          // On encoder tbx
                 hc.SetText(this, tbxEncYR, posXY[1].ToString());
                 hc.SetText(this, tbxEncAngleR, posXY[2].ToString());
-                text = "X:" + posXY[0] + " Y:" + posXY[1] + " ∠:" + posXY[2] + "°";
+                //text = "X:" + posXY[0] + " Y:" + posXY[1] + " ∠:" + posXY[2] + "°";
             }
             else if (Regex.IsMatch(text, @"BaseStation"))
             {
@@ -517,7 +523,8 @@ namespace RobotCS
             return string.Empty;
 
             end:
-            addCommand("> " + socketToName(socket) + " : " + text);
+            if (text != string.Empty)
+                addCommand("> " + socketToName(socket) + " : " + text);
             return respone;
         }
 
@@ -565,6 +572,29 @@ namespace RobotCS
             if (e.KeyCode == Keys.Enter)
                 if ((lblConnectionBS.Text == "Disconnected") && (!String.IsNullOrWhiteSpace(tbxIPBS.Text)) && (!String.IsNullOrWhiteSpace(tbxPortBS.Text)))
                     new Thread(objs => reqConnect(tbxIPBS.Text, tbxPortBS.Text, lblBaseStation.Text, lblConnectionBS)).Start();
+        }
+
+        private void Disconnect_byDistinct(object sender, EventArgs e)
+        {
+            try
+            {
+                var obj = ((dynamic)sender).Name;
+                dynamic[,] arr = { { lblRobot, lblConnectionR }, { lblBaseStation, lblConnectionBS } };
+                int n = 0;
+                for (int i = 0; i < arr.GetLength(0); i++)
+                    if (arr[i, 1].Name == obj)
+                        n = i;
+                if (chkReconnect.ContainsKey(arr[n, 1].Name))
+                    chkReconnect.Remove(arr[n, 1].Name);
+                if (arr[n, 1].Text == "Connected") {
+                    _socketDict[arr[n, 0].Text].Dispose();
+                    hc.SetText(this, arr[n, 1], "Disconnected"); }
+                else if (arr[n, 1].Text == "Open") {
+                    _serverSocket.Dispose();
+                    hc.SetText(this, arr[n, 1], "Close"); }
+            }
+            catch
+            { }
         }
 
         private void tbxMessage_KeyDown(object sender, KeyEventArgs e)
