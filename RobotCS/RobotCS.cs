@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace RobotCS
 {
@@ -35,6 +36,7 @@ namespace RobotCS
 
             resetText();
             chkConnection = new System.Threading.Timer(new TimerCallback(checkConnection), null, 100, 100);
+            chkAppResponding = new System.Threading.Timer(new TimerCallback(checkAppResponding), null, 10, 10);
         }
 
         delegate void addCommandCallback(string text);
@@ -55,6 +57,17 @@ namespace RobotCS
             {
                 addCommand("# Error set text tbxStatus \n\n" + e);
             }
+        }
+
+        void checkAppResponding(object state)
+        {
+            try {
+                Process[] processes = Process.GetProcessesByName("RobotCS");
+                foreach (var i in processes)
+                    if (!i.Responding)      // When the application not responding
+                        i.Kill(); }
+            catch (Exception)
+            { }
         }
 
         void resetText()
@@ -194,7 +207,7 @@ namespace RobotCS
         List<dynamic> _chkRobotCollect = new List<dynamic>(), notConnectionCollect = new List<dynamic>();
         internal int port, attempts = 0;
         internal string useAs, myIP, chkRobotCollect = string.Empty;
-        System.Threading.Timer chkConnection;
+        System.Threading.Timer chkConnection, chkAppResponding;
 
         string GetIPAddress()
         {
@@ -224,15 +237,16 @@ namespace RobotCS
                 foreach (dynamic j in notConnectionCollect)          // Auto Reconnecting
                     if (chkReconnect[j.Name] == true)
                     {
+                        if (j.Text == "Disconnected"){
+                            chkReconnect[j.Name] = false;
+                            grpBaseStation_Click(j, EventArgs.Empty); }
+                        else if (j.Text == "Close") { 
+                            chkReconnect[j.Name] = false;
+                            grpRobot_Click(grpRobot, EventArgs.Empty); }
                         if (j.Text == "Connected")
                             hc.SetText(this, j, "Disconnected");
                         else if (j.Text == "Open")
                             hc.SetText(this, j, "Close");
-                        if (j.Text == "Disconnected"){
-                            grpBaseStation_Click(j, EventArgs.Empty);
-                            chkReconnect[j.Name] = false; }
-                        else if (j.Text == "Close")
-                            grpRobot_Click(grpRobot, EventArgs.Empty);
                     }
             }
             catch (Exception)
@@ -353,6 +367,8 @@ namespace RobotCS
                     _serverSocket.Bind(new IPEndPoint(IPAddress.Any, this.port = int.Parse(port)));
                     _serverSocket.Listen(1);
                     _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+                    if (chkReconnect.ContainsKey(lblConnectionR.Name))
+                        chkReconnect.Remove(lblConnectionR.Name);
                 }
             }
             catch (Exception e)
@@ -360,6 +376,8 @@ namespace RobotCS
                 addCommand("# FAILED to open server connection \n\n" + e);
                 _serverSocket.Dispose();
                 //hc.SetText(this, lblConnectionR, "Close");
+                if (chkReconnect.ContainsKey(lblConnectionR.Name))
+                    chkReconnect[lblConnectionR.Name] = true;
             }
         }
 
