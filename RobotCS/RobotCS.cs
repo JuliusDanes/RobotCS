@@ -147,7 +147,7 @@ namespace RobotCS
                 {
                     if (startX > 12000)
                         startX = int.Parse(startX.ToString().Substring(0, 4));
-                    if (startY > 12000)
+                    if (startY > 9000)
                         startY = int.Parse(startY.ToString().Substring(0, 4));
                     if (startAngle > 360)
                         startAngle = int.Parse(startAngle.ToString().Substring(0, 2));
@@ -399,10 +399,10 @@ namespace RobotCS
             catch (Exception e)
             {
                 addCommand("# FAILED to open server connection \n\n" + e);
-                _serverSocket.Dispose();
-                //hc.SetText(this, lblConnectionR, "Close");
                 if (chkReconnect.ContainsKey(lblConnectionR.Name))
                     chkReconnect[lblConnectionR.Name] = true;
+                _serverSocket.Dispose();
+                //hc.SetText(this, lblConnectionR, "Close");
             }
         }
 
@@ -423,7 +423,7 @@ namespace RobotCS
             }
             catch (Exception e)
             {
-                addCommand("# FAILED to connect \n\n" + e);
+                //addCommand("# FAILED to connect \n\n" + e);
             }
         }
 
@@ -519,7 +519,7 @@ namespace RobotCS
 
                 if ((!string.IsNullOrWhiteSpace(posXYZ[0])) && (Convert.ToInt64(posXYZ[0]) > 12000))
                     posXYZ[0] = posXYZ[0].ToString().Substring(0, 4);
-                if ((!string.IsNullOrWhiteSpace(posXYZ[1])) && (Convert.ToInt64(posXYZ[1]) > 12000))
+                if ((!string.IsNullOrWhiteSpace(posXYZ[1])) && (Convert.ToInt64(posXYZ[1]) > 9000))
                     posXYZ[1] = posXYZ[1].ToString().Substring(0, 4);
                 if ((!string.IsNullOrWhiteSpace(posXYZ[2])) && (Convert.ToInt64(posXYZ[2]) > 360))
                     posXYZ[2] = posXYZ[2].ToString().Substring(0, 2);
